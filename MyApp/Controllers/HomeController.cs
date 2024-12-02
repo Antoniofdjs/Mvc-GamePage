@@ -76,6 +76,34 @@ namespace MyApp.Controllers
             return View(indexVM);
         }
 
+        public async Task<IActionResult> ListedGames(string title)
+        {
+            var response = await _httpClient.GetAsync("https://www.cheapshark.com/api/1.0/games?title=batman");
+            if (!response.IsSuccessStatusCode)
+            {
+                return NotFound();
+            }
+
+            var jsonString = await response.Content.ReadAsStringAsync();
+            var jsonListedGames = JArray.Parse(jsonString);
+            List<ListedGame> listedGames = new List<ListedGame>();
+
+            foreach (var jsonGame in jsonListedGames)
+            {
+                ListedGame listedGame = new ListedGame();
+                listedGame.Title = (string)jsonGame["external"];
+                listedGame.GameID = (int)jsonGame["gameID"];
+                listedGame.CheapestDealID = (string)jsonGame["cheapestDealID"];
+                listedGame.CheapestPrice = (double)jsonGame["cheapest"];
+                listedGame.Thumb = (string)jsonGame["thumb"];
+
+                listedGames.Add(listedGame);
+            }
+
+            return View(listedGames);
+        }
+
+
         public IActionResult Privacy()
         {
             return View();
@@ -89,7 +117,3 @@ namespace MyApp.Controllers
 
     }
 }
-
-
-
-
