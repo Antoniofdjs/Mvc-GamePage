@@ -78,7 +78,7 @@ namespace MyApp.Controllers
 
         public async Task<IActionResult> ListedGames(string title)
         {
-            var response = await _httpClient.GetAsync("https://www.cheapshark.com/api/1.0/games?title=batman");
+            var response = await _httpClient.GetAsync($"https://www.cheapshark.com/api/1.0/games?title={title}");
             if (!response.IsSuccessStatusCode)
             {
                 return NotFound();
