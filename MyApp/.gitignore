@@ -1,0 +1,77 @@
+# Build artifacts
+bin/
+obj/
+Debug/
+Release/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio cache files
+.vs/
+.vscode/
+
+# Rider project files
+.idea/
+*.sln.iml
+*.sln.dotSettings.user
+
+# Test results
+TestResults/
+*.trx
+*.coverage
+*.log
+*.testsettings
+
+# ASP.NET files
+App_Data/
+AppPackages/
+node_modules/
+bower_components/
+
+# Azure and publish settings
+*.Publish.xml
+*.azurePubxml
+
+# Logs
+*.log
+logs/
+**/log/
+**/Logs/
+
+# NuGet packages
+packages/
+*.nupkg
+project.lock.json
+project.assets.json
+
+# Tooling cache
+.vsconfig
+.vssettings
+.vscode/settings.json
+
+# Generated files
+*.dll
+*.pdb
+*.exe
+*.apk
+*.appx
+*.deb
+*.iso
+*.msi
+
+# Local database
+*.mdf
+*.ldf
+*.db
+*.sqlite
+
+# DotNet core global tools
+.dotnet_tools/
+
+# JetBrains Rider caches
+.idea/
+*.iml
