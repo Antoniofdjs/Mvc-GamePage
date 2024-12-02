@@ -15,9 +15,16 @@
         class="w-full h-14 px-1 bg-gradient-to-r from-slate-500 via-violet-950 to-slate-500 flex justify-start items-center fixed top-0 ">
         <nav class="w-full flex justify-start items-center gap-5">
             <div id="avatar-container" class="w-12 h-12 rounded-full bg-black"></div>
-            <input id="search-cards"
-                class="w-5/6 md:w-1/5 h-8 bg-gray-200 rounded-full text-center shadow-sm shadow-gray-800"
-                placeholder="Search">
+            <form asp-controller="Home" asp-action="ListedGames" method="get"
+                class="flex flex-row w-5/6 md:w-2/5 h-8 bg-gray-200 rounded-full text-center shadow-sm shadow-gray-800">
+                <input id="search-game" name="title"
+                    class="w-full h-full text-center rounded-l-full text-center shadow-md shadow-gray-800"
+                    placeholder="Search" />
+                <button type="submit"
+                    class="bg-yellow-200 shadow-gray-800 shadow-sm shadow-black rounded-r-full hover:bg-yellow-500"><img
+                        src="/static/svgs/send.svg" alt="search" class="w-full h-full"></button>
+                <!-- Add a submit button -->
+            </form>
         </nav>
     </header>
 
