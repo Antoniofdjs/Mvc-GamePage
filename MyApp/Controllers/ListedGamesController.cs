@@ -45,6 +45,7 @@ namespace MyApp.Controllers
                 listedGames.Add(listedGame);
             }
 
+            TempData["searchTitle"] = title;
             return View(listedGames);
         }
     }
