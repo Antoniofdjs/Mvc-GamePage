@@ -12,8 +12,7 @@
     <div class="flex justify-start items-center w-4/5 h-full md:w-10/12">
         <h2
             class="text-white text-xl md:text-3xl w-full max-h-full text-start overflow-hidden text-ellipsis line-clamp-2 px-2 md:px-0">
-            Searched:
-            @TempData["searchTitle"]
+            Searched: @TempData["searchTitle"]
         </h2>
     </div>
 </div>
@@ -24,20 +23,23 @@
         {
             <div class="w-full h-80 md:h-48">
                 <div class="flex flex-col justify-start items-center w-full h-full md:gap-2">
-                    <h3
-                        class="w-full md:w-auto max-w-full h-auto max-h-1/6 bg-gradient-to-r from-slate-800/70 via-violet-900 to-slate-800/70
-                        text-3xl md:text-base text-white text-center font-bold text-ellipsis whitespace-nowrap overflow-hidden md:rounded-lg px-2  shadow-none md:shadow-md md:shadow-black">
+                    <h3 class="w-full md:w-auto max-w-full h-auto max-h-1/6 bg-gradient-to-r from-slate-800/70 via-violet-900 to-slate-800/70
+                        text-3xl md:text-base text-white text-center font-bold text-ellipsis whitespace-nowrap overflow-hidden md:rounded-lg px-2  shadow-none md:shadow-md md:shadow-black"
+                        title="@game.Title">
                         @game.Title
                     </h3>
                     <a asp-controller="Game" asp-action="Index" asp-route-gameID="int"
-                        class="w-full md:w-3/4 h-4/6 md:h-3/6 bg-white/20 bg-gradient">
-                        <img src="@game.Thumb" alt="game"
-                            class="w-full h-full object-cover object-center md:border md:border-purple-300 shadow-md shadow-black">
+                        class="relative w-full md:w-3/4 h-4/6 md:h-3/6 bg-white/20 md:hover:scale-110 transition duration-700s"
+                        title="@game.Title">
+                        <img src="/static/svgs/arrowTop.svg" alt=""
+                            class="w-8 md:w-3 h-8 md:h-3 z-20 absolute right-1 top-1 bg-white/20 rounded-sm">
+                        <img src="@game.Thumb" alt="game" class="w-full h-full object-cover object-center md:border md:border-purple-300 md:shadow-md md:shadow-black 
+                            transition duration-700s ease-in-out hover:shadow-purple-400 hover:contrast-125">
                     </a>
                     <div
                         class="flex flex-row w-full md:w-3/4 h-1/6 md:mt-1 md:rounded-l-md md:rounded-r-md md:px-2 md:py-1 bg-gradient-to-r from-sky-500/50 via-violet-950 to-pink-500/50 shadow-lg shadow-purple-950">
                         <a asp-controller="" asp-action=""
-                            class="flex justify-center items-center w-1/2 h-full bg-yellow-500 text-black text-center md:rounded-l-md border border-1 border-purple-900">
+                            class="flex justify-center items-center w-1/2 h-full bg-yellow-500 text-black text-center md:rounded-l-md border border-1 border-purple-900 hover:bg-yellow-300 transition duration-100s ease-in">
                             Details
                         </a>
                         @if (game.CheapestPrice == 0.00)
@@ -52,7 +54,7 @@
                         else
                         {
                             <a href="" target="_blank"
-                                class="relative flex justify-center items-center w-1/2 h-full bg-yellow-500 text-black text-center md:rounded-r-md text-xl md:text-sm border border-1 border-purple-900">
+                                class="relative flex justify-center items-center w-1/2 h-full bg-yellow-500 text-black text-center md:rounded-r-md text-xl md:text-sm border border-1 border-purple-900 hover:bg-yellow-300 transition duration-100s ease-in">
                                 Lowest: $@game.CheapestPrice
                                 <img src="/static/svgs/send.svg" alt="cheap link"
                                     class="w-1/4 h-1/2 md:h-full absolute right-0 rounded-full">
