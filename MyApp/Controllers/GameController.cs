@@ -46,8 +46,8 @@ namespace MyApp.Controllers
                         SalePrice = (double)jsondeal["salePrice"],
                         NormalPrice = (double)jsondeal["normalPrice"],
                         Savings = (double)jsondeal["savings"]
-                    }
-                    deals.Add(deal);
+                    };
+                    game.Deals.Add(deal);
                 }
 
             }
