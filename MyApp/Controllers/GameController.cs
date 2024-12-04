@@ -30,7 +30,7 @@ namespace MyApp.Controllers
             }
 
             var jsonString = await response.Content.ReadAsStringAsync();
-            var jsonGame = JArray.Parse(jsonString);
+            var jsonGame = JObject.Parse(jsonString);
             var jsonDeals = jsonGame["deals"];
 
             Game game = new Game();
@@ -43,8 +43,8 @@ namespace MyApp.Controllers
                     {
                         StoreID = (int)jsondeal["storeID"],
                         DealID = (string)jsondeal["dealID"],
-                        SalePrice = (double)jsondeal["salePrice"],
-                        NormalPrice = (double)jsondeal["normalPrice"],
+                        SalePrice = (double)jsondeal["price"],
+                        NormalPrice = (double)jsondeal["retailPrice"],
                         Savings = (double)jsondeal["savings"]
                     };
                     game.Deals.Add(deal);
