@@ -1,4 +1,4 @@
-@model List<ListedGame> // Need to make changes to ui, but data is reaching here
+@model Game
 @{
     ViewData["Title"] = "Home Page";
 }
@@ -19,51 +19,6 @@
 <div class="flex flex-col justify-start items-start w-full md:w-10/12 h-full bg-slate-950 rounded-b-lg py-2 gap-2 overflow-y-auto"
     style="background: url('/static/images/neon2.jpg') center/cover no-repeat;">
     <div class="w-full h-auto grid grid-cols-1 md:grid-cols-3 gap-1 md:gap-4">
-        @foreach (var game in Model)
-        {
-                <div class="w-full h-80 md:h-48">
-                    <div class="flex flex-col justify-start items-center w-full h-full md:gap-2">
-                        <h3 class="w-full md:w-auto max-w-full h-auto max-h-1/6 bg-gradient-to-r from-slate-800/70 via-violet-900 to-slate-800/70
-                        text-3xl md:text-base text-white text-center font-bold text-ellipsis whitespace-nowrap overflow-hidden md:rounded-lg px-2  shadow-none md:shadow-md md:shadow-black"
-                            title="@game.Title">
-                        @game.Title
-                        </h3>
-                        <a asp-controller="Game" asp-action="Index" asp-route-gameID="int"
-                            class="relative w-full md:w-3/4 h-4/6 md:h-3/6 bg-white/20 md:hover:scale-110 transition duration-700s"
-                            title="@game.Title">
-                            <img src="/static/svgs/arrowTop.svg" alt=""
-                                class="w-8 md:w-3 h-8 md:h-3 z-20 absolute right-1 top-1 bg-white/20 rounded-sm">
-                            <img src="@game.Thumb" alt="game" class="w-full h-full object-cover object-center md:border md:border-purple-300 md:shadow-md md:shadow-black 
-                            transition duration-700s ease-in-out hover:shadow-purple-400 hover:contrast-125">
-                        </a>
-                        <div
-                            class="flex flex-row w-full md:w-3/4 h-1/6 md:mt-1 md:rounded-l-md md:rounded-r-md md:px-2 md:py-1 bg-gradient-to-r from-sky-500/50 via-violet-950 to-pink-500/50 shadow-lg shadow-purple-950">
-                            <a asp-controller="" asp-action=""
-                                class="flex justify-center items-center w-1/2 h-full bg-yellow-500 text-black text-center md:rounded-l-md border border-1 border-purple-900 hover:bg-yellow-300 transition duration-100s ease-in">
-                                Details
-                            </a>
-                        @if (game.CheapestPrice == 0.00)
-                        {
-                                    <a href="" target="_blank"
-                                        class="relative flex justify-center items-center w-1/2 h-full bg-yellow-500 text-green-800 font-bold text-center md:rounded-r-md text-xl md:text-sm border border-1 border-purple-900">
-                                        Free
-                                        <img src="/static/svgs/send.svg" alt="cheap link"
-                                            class="w-1/4 h-1/2 md:h-full absolute right-0 rounded-full">
-                                    </a>
-                        }
-                        else
-                        {
-                                    <a href="" target="_blank"
-                                        class="relative flex justify-center items-center w-1/2 h-full bg-yellow-500 text-black text-center md:rounded-r-md text-xl md:text-sm border border-1 border-purple-900 hover:bg-yellow-300 transition duration-100s ease-in">
-                                        $@game.CheapestPrice
-                                        <img src="/static/svgs/send.svg" alt="cheap link"
-                                            class="w-1/4 h-1/2 md:h-full absolute right-0 rounded-full">
-                                    </a>
-
-                        }
-                        </div>
-                    </div>
-                </div>
-        }
+        <p class="text-white">GAME-VIEW ID: @Model.Title</p>
     </div>
 </div>
