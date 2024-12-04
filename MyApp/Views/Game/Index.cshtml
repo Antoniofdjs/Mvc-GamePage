@@ -20,5 +20,17 @@
     style="background: url('/static/images/neon2.jpg') center/cover no-repeat;">
     <div class="w-full h-auto grid grid-cols-1 md:grid-cols-3 gap-1 md:gap-4">
         <p class="text-white">GAME-VIEW ID: @Model.Title</p>
+        @foreach (var deal in Model.Deals)
+        {
+            <div class="bg-black">
+                <p class="text-white">store ID: @deal.StoreID</p>
+                <p class="text-xl text-white">Sale: $@deal.SalePrice </p>
+                <p class="text-xl text-white">Normal: $@deal.NormalPrice</p>
+                <p class="text-xl text-white">Savings % @deal.Savings</p>
+                <p class="text-xl text-white"> DealID Link @deal.DealID</p>
+
+            </div>
+
+        }
     </div>
 </div>
