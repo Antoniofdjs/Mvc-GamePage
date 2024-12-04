@@ -28,7 +28,7 @@
                         title="@game.Title">
                         @game.Title
                     </h3>
-                    <a asp-controller="Game" asp-action="Index" asp-route-gameID="int"
+                    <a asp-controller="Game" asp-action="Index" asp-route-gameID="@game.GameID"
                         class="relative w-full md:w-3/4 h-4/6 md:h-3/6 bg-white/20 md:hover:scale-110 transition duration-700s"
                         title="@game.Title">
                         <img src="/static/svgs/arrowTop.svg" alt=""
@@ -55,7 +55,7 @@
                         {
                             <a href="" target="_blank"
                                 class="relative flex justify-center items-center w-1/2 h-full bg-yellow-500 text-black text-center md:rounded-r-md text-xl md:text-sm border border-1 border-purple-900 hover:bg-yellow-300 transition duration-100s ease-in">
-                                Lowest: $@game.CheapestPrice
+                                $@game.CheapestPrice
                                 <img src="/static/svgs/send.svg" alt="cheap link"
                                     class="w-1/4 h-1/2 md:h-full absolute right-0 rounded-full">
                             </a>
