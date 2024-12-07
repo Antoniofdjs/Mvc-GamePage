@@ -11,26 +11,60 @@
     </div>
     <div class="flex justify-start items-center w-4/5 h-full md:w-10/12">
         <h2
-            class="text-white text-xl md:text-3xl w-full max-h-full text-start overflow-hidden text-ellipsis line-clamp-2 px-2 md:px-0">
-            Searched: @TempData["searchTitle"]
+            class="text-white text-xl md:text-3xl w-full h-2/5 md:h-3/5 max-h-full text-start overflow-hidden text-ellipsis line-clamp-1 md:line-clamp-2 px-2 md:px-0">
+            Viewing: @Model.Title
         </h2>
     </div>
 </div>
-<div class="flex flex-col justify-start items-start w-full md:w-10/12 h-full bg-slate-950 rounded-b-lg py-2 gap-2 overflow-y-auto"
-    style="background: url('/static/images/neon2.jpg') center/cover no-repeat;">
-    <div class="w-full h-auto grid grid-cols-1 md:grid-cols-3 gap-1 md:gap-4">
-        <p class="text-white">GAME-VIEW ID: @Model.Title</p>
-        @foreach (var deal in Model.Deals)
-        {
-            <div class="bg-black">
-                <p class="text-white">store ID: @deal.StoreID</p>
-                <p class="text-xl text-white">Sale: $@deal.SalePrice </p>
-                <p class="text-xl text-white">Normal: $@deal.NormalPrice</p>
-                <p class="text-xl text-white">Savings % @deal.Savings</p>
-                <p class="text-xl text-white"> DealID Link @deal.DealID</p>
-
+<div
+    class="bg-purple-950 flex flex-col md:flex-row justify-start items-start w-full md:w-10/12 h-full rounded-b-lg md:py-2 overflow-y-auto">
+    <div class="bg-slate-950 flex flex-col justify-start items-center w-full md:w-1/4 h-auto md:h-full">
+        <div
+            class="flex flex-col justify-center items-center w-auto md:w-auto h-40 md:h-1/4 bg-purple-300/20 border border-purple-300 p-1 my-1 md:my-0 rounded-sm">
+            <img src="@Model.Thumb" alt="" class="w-auto h-full object-contain shadow-sm shadow-black">
+        </div>
+        <div class="flex flex-col justify-start items-start w-full h-auto">
+            <div class="flex flex-col justify-start items-center w-full h-auto bg-slate-950">
+                <h3
+                    class="flex justify-center items-center w-full h-14 md:h-10 bg-purple-900/50 text-center text-white text-3xl md:text-xl">
+                    Deals</h3>
+                <ul class="w-full md:w-11/12 h-auto bg-yellow-500 overflow-auto md:rounded-b-md">
+                    @foreach (var deal in Model.Deals)
+                    {
+                        <li
+                            class="flex flex0-col justify-center items-start w-full h-12 md:h-auto text-center text-black overflow-hidden">
+                            <a href="https://www.cheapshark.com/redirect?dealID=@deal.DealID" target="_blank"
+                                class="flex justify-center items-center z-20 w-full h-full md:h-auto underline text-2xl md:text-2xl md:text-sm hover:bg-yellow-400 hover:bg-gradient-to-r from-purple-950 via-yellow-500 to-purple-950">$@deal.SalePrice:
+                                @deal.StoreName</a>
+                        </li>
+                    }
+                </ul>
+                <div class="flex flex-col justify-center items-center w-full h-auto">
+                    <h3
+                        class="flex justify-center items-center w-full h-14 md:h-10 bg-purple-900/50 hover:bg-purple-900 text-center text-white text-3xl md:text-xl">
+                        Reviews</h3>
+                    <div class=" w-full grid grid-cols-2 p-2">
+                        <div class="w-full h-auto flex flex-col justify-center items-center">
+                            <div class="w-16 h-16 rounded-full bg-white font-bold">
+                                <button class="w-full h-full rounded-full bg-green-500/80 font-bold">82</button>
+                            </div>
+                            <h4 class="w-full text-white text-center">Metacritic</h4>
+                        </div>
+                        <div class="w-full h-auto flex flex-col justify-center items-center">
+                            <div class="w-16 h-16 rounded-full bg-white font-bold">
+                                <button class="w-full h-full rounded-full bg-yellow-500/80 font-bold">68</button>
+                            </div>
+                            <h4 class="w-full text-white text-center">Steam</h4>
+                        </div>
+                    </div>
+                </div>
             </div>
-
-        }
+        </div>
+    </div>
+    <div class="flex justify-center items-start w-full md:w-3/4 h-auto md:h-full overflow-auto">
+        <h2 class="w-full h-full text-white text-center bg-slate-900/50 text-2xl text-center">
+            Render here below:
+        </h2>
+        @* Render here depending on click for About or Reviews etc *@
     </div>
 </div>
