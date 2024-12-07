@@ -11,7 +11,7 @@
     </div>
     <div class="flex justify-start items-center w-4/5 h-full md:w-10/12">
         <h2
-            class="text-white text-xl md:text-3xl w-full max-h-full text-start overflow-hidden text-ellipsis line-clamp-2 px-2 md:px-0">
+            class="text-white text-xl md:text-3xl w-full h-2/5 md:h-3/5 max-h-full text-start overflow-hidden text-ellipsis line-clamp-1 md:line-clamp-2 px-2 md:px-0">
             Searched: @TempData["searchTitle"]
         </h2>
     </div>
@@ -53,7 +53,7 @@
                         }
                         else
                         {
-                            <a href="" target="_blank"
+                            <a href="https://www.cheapshark.com/redirect?dealID=@game.CheapestDealID" target="_blank"
                                 class="relative flex justify-center items-center w-1/2 h-full bg-yellow-500 text-black text-center md:rounded-r-md text-xl md:text-sm border border-1 border-purple-900 hover:bg-yellow-300 transition duration-100s ease-in">
                                 $@game.CheapestPrice
                                 <img src="/static/svgs/send.svg" alt="cheap link"
