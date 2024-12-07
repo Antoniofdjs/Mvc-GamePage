@@ -36,12 +36,18 @@ namespace MyApp.Controllers
             Game game = new Game();
             {
                 game.Title = (string)jsonGame["info"]["title"];
+                game.Thumb = (string)jsonGame["info"]["thumb"];
                 game.Deals = new List<Deal>();
                 foreach (var jsondeal in jsonDeals)
                 {
+                    int storeID = (int)jsondeal["storeID"];
+                    var store = _localData.Stores.FirstOrDefault(u => u.Id == storeID);
+                    string storeName = store.Name;
+
                     var deal = new Deal
                     {
-                        StoreID = (int)jsondeal["storeID"],
+                        StoreID = storeID,
+                        StoreName = storeName,
                         DealID = (string)jsondeal["dealID"],
                         SalePrice = (double)jsondeal["price"],
                         NormalPrice = (double)jsondeal["retailPrice"],
