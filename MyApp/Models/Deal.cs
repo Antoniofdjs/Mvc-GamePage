@@ -4,8 +4,9 @@ namespace MyApp.Models
     public class Deal
     {
 
-        public string Title { get; set; } // steam 1, Amazon 4, Gamestop 5, Origin 8, Epic Games Store 25
+        public string Title { get; set; }
         public string DealID { get; set; }
+        public string StoreName { get; set; }
         public int StoreID { get; set; }
         public int GameID { get; set; }
         public double SalePrice { get; set; }
