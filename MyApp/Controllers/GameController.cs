@@ -21,8 +21,11 @@ namespace MyApp.Controllers
             _cache = cache;
         }
 
-        public async Task<IActionResult> Index(int gameID)
+        public async Task<IActionResult> Index(int gameID, string searchTitle, string returnTo = "Home")
         {
+            ViewBag.returnTo = returnTo;
+            ViewBag.searchTitle = searchTitle;
+
             var response = await _httpClient.GetAsync($"https://www.cheapshark.com/api/1.0/games?id={gameID}");
             if (!response.IsSuccessStatusCode)
             {
@@ -38,6 +41,8 @@ namespace MyApp.Controllers
                 game.Title = (string)jsonGame["info"]["title"];
                 game.Thumb = (string)jsonGame["info"]["thumb"];
                 game.Deals = new List<Deal>();
+                game.Review = new Review();
+
                 foreach (var jsondeal in jsonDeals)
                 {
                     int storeID = (int)jsondeal["storeID"];
@@ -57,6 +62,20 @@ namespace MyApp.Controllers
                 }
 
             }
+
+            // Retrieve metacritic and steam ratings
+            string dealID = game.Deals[0].DealID;
+            var responseDealSearch = await _httpClient.GetAsync($"https://www.cheapshark.com/api/1.0/deals?id={dealID}");
+            if (responseDealSearch.IsSuccessStatusCode)
+            {
+                var jsonStringDealSearch = await responseDealSearch.Content.ReadAsStringAsync();
+                var jsonDealSearch = JObject.Parse(jsonStringDealSearch);
+
+                game.Review.MetacriticScore = (int)jsonDealSearch["gameInfo"]["metacriticScore"];
+                game.Review.MetaCriticLink = (string)jsonDealSearch["gameInfo"]["metacriticLink"];
+                game.Review.SteamRating = (int)jsonDealSearch["gameInfo"]["steamRatingPercent"];
+            }
+
             return View(game);
         }
     }
