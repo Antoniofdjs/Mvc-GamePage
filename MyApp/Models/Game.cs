@@ -5,6 +5,7 @@ namespace MyApp.Models
         public string Title { get; set; }
         public List<Deal> Deals { get; set; }
         public string Thumb { get; set; }
+        public Review Review { get; set; }
         public Game() { }
     }
 }
