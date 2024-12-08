@@ -10,7 +10,7 @@
     <div class="flex justify-start items-center w-4/5 h-full md:w-10/12">
         <h2
             class="text-white text-xl md:text-3xl w-full h-2/5 md:h-3/5 max-h-full text-start overflow-hidden text-ellipsis line-clamp-1 md:line-clamp-2 px-2 md:px-0">
-            Searched: @TempData["searchTitle"]
+            Searched: @ViewBag.searchTitle
         </h2>
     </div>
 </div>
@@ -26,7 +26,8 @@
                         title="@game.Title">
                         @game.Title
                     </h3>
-                    <a asp-controller="Game" asp-action="Index" asp-route-gameID="@game.GameID"
+                    <a asp-controller="Game" asp-action="Index" asp-route-returnTo="ListedGames"
+                        asp-route-gameID="@game.GameID" asp-route-searchTitle="@ViewBag.searchTitle"
                         class="relative w-full md:w-3/4 h-4/6 md:h-3/6 bg-white/20 md:hover:scale-110 transition duration-700s"
                         title="@game.Title">
                         <img src="/static/svgs/arrowTop.svg" alt=""

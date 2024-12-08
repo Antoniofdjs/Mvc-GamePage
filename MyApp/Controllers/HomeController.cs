@@ -55,6 +55,7 @@ namespace MyApp.Controllers
                 var deal = new Deal
                 {
                     Title = (string)jsonDeal["title"],
+                    GameID = (int)jsonDeal["gameID"],
                     DealID = (string)jsonDeal["dealID"],
                     StoreID = (int)jsonDeal["storeID"],
                     SalePrice = (double)jsonDeal["salePrice"],

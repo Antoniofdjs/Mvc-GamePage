@@ -98,7 +98,8 @@
     @foreach (var deal in Model.Deals)
     {
         <div class="flex justify-start items-start w-full h-52 md:h-40">
-            <div class="relative flex justify-center w-2/5 md:w-60 h-full bg-white/20 backdrop-blur-lg">
+            <a asp-controller="Game" asp-action="Index" asp-route-returnTo="Home" asp-route-gameID="@deal.GameID"
+                class="relative flex justify-center w-2/5 md:w-60 h-full bg-white/20 backdrop-blur-lg">
                 <img src="@deal.Thumb" class="object-contain w-full h-auto max-h-40" alt="game image">
                 @if (deal.Savings == 100.00)
                 {
@@ -114,7 +115,7 @@
                         Save %@deal.Savings.ToString("F2")
                     </p>
                 }
-            </div>
+            </a>
             <div class="flex justify-start items-center relative w-3/5 md:w-1/2 h-full rounded-lg">
                 <div
                     class="flex flex-col justify-start items-center w-full h-full bg-violet-950 md:rounded-r-full md:pr-5 gap-2">
