@@ -39,6 +39,11 @@ namespace MyApp.Controllers
             Game game = new Game();
             {
                 game.Title = (string)jsonGame["info"]["title"];
+                var appID = jsonGame["info"]["steamAppID"];
+                if (appID != null && appID.Type != JTokenType.Null)
+                {
+                    game.SteamAppID = (int)appID;
+                }
                 game.Thumb = (string)jsonGame["info"]["thumb"];
                 game.Deals = new List<Deal>();
                 game.Review = new Review();
@@ -72,8 +77,14 @@ namespace MyApp.Controllers
                 var jsonDealSearch = JObject.Parse(jsonStringDealSearch);
 
                 game.Review.MetacriticScore = (int)jsonDealSearch["gameInfo"]["metacriticScore"];
-                game.Review.MetaCriticLink = (string)jsonDealSearch["gameInfo"]["metacriticLink"];
-                game.Review.SteamRating = (int)jsonDealSearch["gameInfo"]["steamRatingPercent"];
+                var linkMetaCritic = (string)jsonDealSearch["gameInfo"]["metacriticLink"];
+                game.Review.MetacriticLink = $"https://www.metacritic.com{linkMetaCritic}";
+
+                if (game.SteamAppID != 0)
+                {
+                    game.Review.SteamRating = (int)jsonDealSearch["gameInfo"]["steamRatingPercent"];
+                    game.Review.SteamLink = $"https://store.steampowered.com/app/{game.SteamAppID}/#app_reviews_hash";
+                }
             }
 
             return View(game);
