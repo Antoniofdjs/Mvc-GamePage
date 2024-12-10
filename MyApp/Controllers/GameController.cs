@@ -1,3 +1,5 @@
+using System.Net.Http.Headers;
+using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using MyApp.Data;
@@ -19,6 +21,34 @@ namespace MyApp.Controllers
             _httpClient = httpClient;
             _localData = localData;
             _cache = cache;
+        }
+
+        public async Task<IActionResult> Summary()
+        {
+
+            // Client-ID: Client ID
+            string clientId = Environment.GetEnvironmentVariable("CLIENT_ID");
+            string clientSecret = Environment.GetEnvironmentVariable("CLIENT_SECRET");
+            Console.WriteLine("My client id is: ");
+            Console.WriteLine(clientId);
+
+            // Authorization: Bearer access_token
+
+            // Needs to be post method
+            _httpClient.DefaultRequestHeaders.Add("Client-ID", clientId);
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "AccesTokenHEREEEEEEEEEE");
+            var body = "fields video_id;";
+            var content = new StringContent(body, Encoding.UTF8, "text/plain");
+
+            // Send the POST
+            var response = await _httpClient.PostAsync("https://api.igdb.com/v4/game_videos", content);
+            if (!response.IsSuccessStatusCode)
+            {
+                return NotFound();
+            }
+
+            var responseData = await response.Content.ReadAsStringAsync();
+            return View();
         }
 
         public async Task<IActionResult> Index(int gameID, string searchTitle, string returnTo = "Home")
