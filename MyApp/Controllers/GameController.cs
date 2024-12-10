@@ -13,14 +13,17 @@ namespace MyApp.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly HttpClient _httpClient;
         private readonly LocalData _localData;
+
+        private readonly TwitchTokenManager _twitchTokenManager;
         private IMemoryCache _cache;
 
-        public GameController(ILogger<HomeController> logger, HttpClient httpClient, LocalData localData, IMemoryCache cache)
+        public GameController(ILogger<HomeController> logger, HttpClient httpClient, LocalData localData, TwitchTokenManager twitchTokenManager, IMemoryCache cache)
         {
             _logger = logger;
             _httpClient = httpClient;
             _localData = localData;
             _cache = cache;
+            _twitchTokenManager = twitchTokenManager;
         }
 
         public async Task<IActionResult> Summary()
@@ -29,26 +32,29 @@ namespace MyApp.Controllers
             // Client-ID: Client ID
             string clientId = Environment.GetEnvironmentVariable("CLIENT_ID");
             string clientSecret = Environment.GetEnvironmentVariable("CLIENT_SECRET");
-            Console.WriteLine("My client id is: ");
-            Console.WriteLine(clientId);
 
+            //expiration check
+            if (_twitchTokenManager.TokenExpiration == null || DateTime.Now >= _twitchTokenManager.TokenExpiration)
+            {
+                await _twitchTokenManager.RefreshToken();
+            }
             // Authorization: Bearer access_token
-
             // Needs to be post method
             _httpClient.DefaultRequestHeaders.Add("Client-ID", clientId);
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "AccesTokenHEREEEEEEEEEE");
-            var body = "fields video_id;";
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _twitchTokenManager.TokenValue);
+            var body = $"fields name, screenshots; where name ~ \"Diablo\";";
             var content = new StringContent(body, Encoding.UTF8, "text/plain");
 
             // Send the POST
-            var response = await _httpClient.PostAsync("https://api.igdb.com/v4/game_videos", content);
+            var response = await _httpClient.PostAsync("https://api.igdb.com/v4/games", content);
             if (!response.IsSuccessStatusCode)
             {
                 return NotFound();
             }
 
             var responseData = await response.Content.ReadAsStringAsync();
-            return View();
+            Console.WriteLine(responseData);
+            return Ok(responseData);
         }
 
         public async Task<IActionResult> Index(int gameID, string searchTitle, string returnTo = "Home")
