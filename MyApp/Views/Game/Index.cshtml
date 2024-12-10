@@ -1,4 +1,4 @@
-@model Game
+@model MyApp.Models.ViewModels.IndexGameVM
 @{
     ViewData["Title"] = "Home Page";
 }
@@ -19,30 +19,31 @@
             </a>
         }
     </div>
+    using OpenAI.Models;
     <div class="flex justify-start items-center w-4/5 h-full md:w-10/12">
         <h2
             class="text-white text-xl md:text-3xl w-full h-2/5 md:h-3/5 max-h-full text-start overflow-hidden text-ellipsis line-clamp-1 md:line-clamp-2 px-2 md:px-0">
-            @Model.Title
+            @Model.Game.Title
         </h2>
     </div>
 </div>
 <section id="game-section"
-    class="bg-purple-950 flex flex-col md:flex-row justify-start items-start w-full md:w-10/12 h-full rounded-b-lg md:pt-2 overflow-y-auto">
+    class="bg-purple-950 flex flex-col md:flex-row justify-start items-start w-full h-full rounded-b-lg md:pt-2 overflow-y-auto md:overflow-y-none">
     <div id="board-container"
-        class="bg-slate-950 flex flex-col justify-start items-center w-full md:w-1/4 h-auto md:min-h-full px-2 pt-2">
+        class="bg-slate-950 flex flex-col justify-start items-center w-full md:w-1/4 h-auto md:h-full px-2 pt-2 md:overflow-y-auto">
         <div id="image-container"
-            class="flex flex-col justify-center items-center w-auto md:w-auto h-40 md:h-50 bg-purple-300/20 border border-purple-300 p-1 my-1 md:my-0 rounded-sm">
-            <img src="@Model.Thumb" alt="" class="w-auto h-full object-contain shadow-sm shadow-black">
+            class="flex flex-col justify-center items-center w-auto h-40 md:h-50 md:max-h-1/4  bg-purple-300/20 border border-purple-300 p-1 my-1 md:my-0 rounded-sm">
+            <img src="@Model.Game.Thumb" alt="" class="w-auto h-full object-contain shadow-sm shadow-black">
         </div>
-        <div id="content-container" class="flex flex-col justify-start items-start w-full h-auto">
+        <div id="content-container" class="flex flex-col justify-start items-start w-full h-3/4">
             <div id="group-container"
-                class="flex flex-col justify-start items-center w-full h-auto bg-slate-950  md:gap-y-4 overflow-y-auto">
+                class="flex flex-col justify-start items-center w-full h-auto bg-slate-950  md:gap-y-4">
                 <div id="deals-container" class="flex flex-col justify-center items-center w-full h-auto">
                     <h3
                         class="flex justify-center items-center w-3/4 md:w-1/2 h-14 md:h-10 text-center text-white text-3xl md:text-xl px-2 border-b-2 md:border-b md:mb-4 border-white">
                         Deals</h3>
                     <ul class="w-3/4 md:w-11/12 h-auto bg-yellow-500 overflow-auto rounded-b-md">
-                        @foreach (var deal in Model.Deals)
+                        @foreach (var deal in Model.Game.Deals)
                         {
                             <li
                                 class="flex flex-col justify-center items-start w-full h-12 md:h-auto text-center text-black overflow-hidden">
@@ -58,13 +59,13 @@
                         class="flex justify-center items-center w-3/4 md:w-1/2 h-14 md:h-10 text-center text-white text-3xl md:text-xl px-2 border-b-2 md:border-b mb-4">
                         Reviews</h3>
                     <div class=" w-10/12 grid grid-cols-1 md:grid-cols-2 p-2 gap-y-8 md:gap-y-6 pb-4 md:pb-0">
-                        @if (Model.Review.MetacriticScore != 0)
+                        @if (Model.Game.Review.MetacriticScore != 0)
                         {
                             <div class="w-full h-full flex flex-col justify-center items-center">
                                 <a class="relative flex flex-col justify-start items-center w-24 md:w-14 h-24 md:h-14 rounded-full font-bold cursor-pointer bg-slate-900"
-                                    href="@Model.Review.MetacriticLink" target="_blank">
+                                    href="@Model.Game.Review.MetacriticLink" target="_blank">
                                     <button id="metacritic-rating"
-                                        class="w-full h-full rounded-full outline outline-green-500 font-bold text-green-500 text-3xl md:text-lg">@Model.Review.MetacriticScore</button>
+                                        class="w-full h-full rounded-full outline outline-green-500 font-bold text-green-500 text-3xl md:text-lg">@Model.Game.Review.MetacriticScore</button>
                                     <h4 id="metacritic-text"
                                         class=" absolute bottom-0 w-auto text-green-500 text-center select-none bg-slate-950 text-md md:text-xs rounded-lg shadow-md shadow-green-500 px-2">
                                         MetaCritic
@@ -72,13 +73,13 @@
                                 </a>
                             </div>
                         }
-                        @if (Model.Review.SteamRating != 0)
+                        @if (Model.Game.Review.SteamRating != 0)
                         {
                             <div class="w-full h-auto flex flex-col justify-center items-center">
                                 <a class="relative flex flex-col justify-start items-center w-24 md:w-14 h-24 md:h-14 rounded-full font-bold cursor-pointer bg-slate-900"
-                                    href="@Model.Review.SteamLink" target="_blank">
+                                    href="@Model.Game.Review.SteamLink" target="_blank">
                                     <button id="steam-rating"
-                                        class="w-full h-full rounded-full outline outline-red-500 font-bold text-red-500 text-3xl md:text-lg">@Model.Review.SteamRating</button>
+                                        class="w-full h-full rounded-full outline outline-red-500 font-bold text-red-500 text-3xl md:text-lg">@Model.Game.Review.SteamRating</button>
                                     <h4 id="steam-text"
                                         class=" absolute bottom-0 w-auto text-red-500 text-center select-none bg-slate-950 text-md md:text-xs rounded-lg shadow-md shadow-red-500 px-2">
                                         Steam
@@ -86,6 +87,35 @@
                                 </a>
                             </div>
                         }
+                        @if (Model.Rating != 0)
+                        {
+                            <div class="w-full h-auto flex flex-col justify-center items-center">
+                                <a class="relative flex flex-col justify-start items-center w-24 md:w-14 h-24 md:h-14 rounded-full font-bold cursor-pointer bg-slate-900"
+                                    href="@Model.RatingLink" target="_blank">
+                                    <button id="igdb-rating"
+                                        class="w-full h-full rounded-full outline outline-red-500 font-bold text-red-500 text-3xl md:text-lg">@Model.Rating</button>
+                                    <h4 id="igdb-text"
+                                        class=" absolute bottom-0 w-auto text-red-500 text-center select-none bg-slate-950 text-md md:text-xs rounded-lg shadow-md shadow-red-500 px-2">
+                                        IGDB
+                                    </h4>
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div id="others-container" class="flex flex-col justify-center items-center w-full h-auto">
+                    <h3
+                        class="flex justify-center items-center w-3/4 md:w-1/2 h-14 md:h-10 text-center text-white text-3xl md:text-xl px-2 border-b-2 md:border-b mb-4">
+                        Themes</h3>
+                    <div class="flex justify-center w-10/12 h-auto">
+                        <ul class="flex flex-wrap justify-center w-full gap-1">
+                            @foreach (var themeGenreID in Model.ThemesGenres)
+                            {
+                                <li class="w-auto text-gray-300 border text-center rounded-full bg-white/h-20 px-2">
+                                    <p class="text-xl md:text-base">@themeGenreID</p>
+                                </li>
+                            }
+                        </ul>
                     </div>
                 </div>
                 <div id="others-container" class="flex flex-col justify-center items-center w-full h-auto">
@@ -98,30 +128,61 @@
                         class="flex justify-center items-center w-3/4 md:w-1/2 h-14 md:h-10 text-center text-white text-3xl md:text-xl px-2 border-b-2 md:border-b mb-4">
                         Other</h3>
                 </div>
-
+                <div id="others-container" class="flex flex-col justify-center items-center w-full h-auto">
+                    <h3
+                        class="flex justify-center items-center w-3/4 md:w-1/2 h-14 md:h-10 text-center text-white text-3xl md:text-xl px-2 border-b-2 md:border-b mb-4">
+                        Other</h3>
+                </div>
+                I
             </div>
         </div>
     </div>
-    <div class="flex flex-col justify-start items-center w-full md:w-3/4 h-auto md:h-full overflow-y-auto">
-        <h2 class="w-1/2 h-auto text-white text-center bg-slate-900/50 text-2xl text-center">
-            About
-        </h2>
-        <p class="w-11/12 h-auto text-white text-center bg-slate-900/50 text-2xl text-center text-md">Set in the Diablo
-            series'
-            world of Sanctuary, Diablo IV takes place 50 years after the events of Diablo III: Reaper of
-            Souls.[32][31][33] Cultists have summoned the main antagonist and daughter of Mephisto, Lilith (Caroline
-            Faber).[34] After the events of previous games, the forces of demons and angels have been depleted, allowing
-            an opening for her to establish power in Sanctuary.[35][36]. <br>
+    <div id="game-details"
+        class="flex flex-col justify-start items-center w-full md:w-3/4 h-full md:gap-4 bg-gradient-to-b from-slate-950 to-purple-800">
+        <div id="summaryContainer"
+            class="flex flex-col justify-start items-center w-full h-auto md:h-2/6 md:overflow-hidden gap-4">
+            <h2 class="w-1/2 h-auto text-white text-center text-2xl text-center font-bold">
+                Summary
+            </h2>
+            <p class="w-11/12 h-5/6 text-white text-center text-md text-center text-md md:overflow-y-auto">Set in the
+                @Model.StoryLine <br>
+                <br>
+                @Model.Summary
+            </p>
+        </div>
+        <div id="videos-container"
+            class="flex flex-col md:flex-row justify-center items-center w-full md:w-11/12 h-auto md:h-2/6 md:gap-14">
+            <iframe src="https://www.youtube.com/embed/bPFJuANnahE" frameborder="0"
+                class="w-full md:w-1/3 h-64 md:h-5/6 shadow-md shadow-black hover:shadow-none md:rounded-md hover:opacity-80 transition-transform duration-100"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen></iframe>
+            <iframe src="https://www.youtube.com/embed/bPFJuANnahE" frameborder="0"
+                class="w-full md:w-1/3 h-64 md:h-5/6 shadow-md shadow-black hover:shadow-none md:rounded-md hover:opacity-80 transition-transform duration-100"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen></iframe>
+        </div>
+        <div id="screenshots"
+            class="flex justify-center items-center w-full md:w-11/12 h-auto md:h-1/6 overflow-x-auto flex-shrink-0 bg-lime-800">
+            <div class="flex w-auto h-full min-w-0 gap-1 overflow-y-hidden px-2">
+                <div class="w-40 h-40 bg-red-800 flex-shrink-0 border border-purple-300 rounded-sm">
+                    <img src="https://images.igdb.com/igdb/image/upload/t_screenshot_med/sc78fa.jpg"
+                        class="w-full h-full object-cover shadow-md shadow-black hover:scale-110 transition-transform duration-100" />
+                </div>
+                <div class="w-40 h-40 bg-red-800 flex-shrink-0 border border-purple-300">
+                    <img src="https://cdn.wikimg.net/en/strategywiki/images/7/7f/COD2_crossingtherhine.jpg"
+                        class="w-full h-full object-cover shadow-md shadow-black hover:scale-110 transition-transform duration-100" />
+                </div>
+                <div class="w-40 h-40 bg-red-800 flex-shrink-0 border border-purple-300">
+                    <img src="https://www.gamespot.com/a/uploads/original/gamespot/images/2005/121/reviews/656049-921995_20050502_001.jpg"
+                        class="w-full h-full object-cover shadow-md shadow-black hover:scale-110 transition-transform duration-100" />
+                </div>
+                <div class="w-40 h-40 bg-red-800 flex-shrink-0 border border-purple-300">
+                    <img src="https://www.gamespot.com/a/uploads/original/gamespot/images/2005/108/reviews/653811-921995_20050419_004.jpg"
+                        class="w-full h-full object-cover shadow-md shadow-black hover:scale-110 transition-transform duration-100" />
+                </div>
 
-            Thousands of years before the game's events, Lilith and the angel Inarius (Gabe Kunda) created the realm of
-            Sanctuary to provide refuge for those who wished to escape the eternal conflict between the High Heavens and
-            the Burning Hells. This demon-angel relationship led to the birth of the Nephalem, a race that the
-            protagonist falls under; neither Angel nor Demon, but a distinct combination of both. Those in Sanctuary
-            believed that this power would bring attention to their shelter and, as a result, the inhabitants spoke of
-            destroying them. Lilith, not wanting her children to be killed, destroyed any that opposed her, causing
-            Inarius to banish her to the void.[37][38][39]</p>
-
-        @* Render here depending on click for About or Reviews etc *@
+            </div>
+        </div>
     </div>
 </section>
 
