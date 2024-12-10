@@ -75,3 +75,6 @@ project.assets.json
 # JetBrains Rider caches
 .idea/
 *.iml
+
+# env files
+*.env
