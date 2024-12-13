@@ -19,7 +19,6 @@
             </a>
         }
     </div>
-    using OpenAI.Models;
     <div class="flex justify-start items-center w-4/5 h-full md:w-10/12">
         <h2
             class="text-white text-xl md:text-3xl w-full h-2/5 md:h-3/5 max-h-full text-start overflow-hidden text-ellipsis line-clamp-1 md:line-clamp-2 px-2 md:px-0">
@@ -87,13 +86,13 @@
                                 </a>
                             </div>
                         }
-                        @if (Model.Rating != 0)
+                        @if (Model.IgdbDetails.RatingCount != 0)
                         {
                             <div class="w-full h-auto flex flex-col justify-center items-center">
                                 <a class="relative flex flex-col justify-start items-center w-24 md:w-14 h-24 md:h-14 rounded-full font-bold cursor-pointer bg-slate-900"
-                                    href="@Model.RatingLink" target="_blank">
+                                    href="@Model.IgdbDetails.RatingLink" target="_blank">
                                     <button id="igdb-rating"
-                                        class="w-full h-full rounded-full outline outline-red-500 font-bold text-red-500 text-3xl md:text-lg">@Model.Rating</button>
+                                        class="w-full h-full rounded-full outline outline-red-500 font-bold text-red-500 text-3xl md:text-lg">@Model.IgdbDetails.RatingCount</button>
                                     <h4 id="igdb-text"
                                         class=" absolute bottom-0 w-auto text-red-500 text-center select-none bg-slate-950 text-md md:text-xs rounded-lg shadow-md shadow-red-500 px-2">
                                         IGDB
@@ -109,7 +108,7 @@
                         Themes</h3>
                     <div class="flex justify-center w-10/12 h-auto">
                         <ul class="flex flex-wrap justify-center w-full gap-1">
-                            @foreach (var themeGenreID in Model.ThemesGenres)
+                            @foreach (var themeGenreID in Model.IgdbDetails.ThemesGenres)
                             {
                                 <li class="w-auto text-gray-300 border text-center rounded-full bg-white/h-20 px-2">
                                     <p class="text-xl md:text-base">@themeGenreID</p>
@@ -140,26 +139,32 @@
     <div id="game-details"
         class="flex flex-col justify-start items-center w-full md:w-3/4 h-full md:gap-4 bg-gradient-to-b from-slate-950 to-purple-800">
         <div id="summaryContainer"
-            class="flex flex-col justify-start items-center w-full h-auto md:h-2/6 md:overflow-hidden gap-4">
+            class="flex flex-col justify-start items-center w-full h-auto md:h-1/4 md:overflow-hidden gap-4">
             <h2 class="w-1/2 h-auto text-white text-center text-2xl text-center font-bold">
                 Summary
             </h2>
-            <p class="w-11/12 h-5/6 text-white text-center text-md text-center text-md md:overflow-y-auto">Set in the
-                @Model.StoryLine <br>
-                <br>
-                @Model.Summary
+            <p
+                class="w-11/12 h-5/6 text-white text-center text-md  lg:text-xs xl:text-md 2xl:text-base text-center text-md md:overflow-y-auto">
+                Set in the
+                @Model.IgdbDetails.StoryLine<br>
+                @Model.IgdbDetails.Summary
             </p>
         </div>
         <div id="videos-container"
-            class="flex flex-col md:flex-row justify-center items-center w-full md:w-11/12 h-auto md:h-2/6 md:gap-14">
-            <iframe src="https://www.youtube.com/embed/bPFJuANnahE" frameborder="0"
-                class="w-full md:w-1/3 h-64 md:h-5/6 shadow-md shadow-black hover:shadow-none md:rounded-md hover:opacity-80 transition-transform duration-100"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen></iframe>
-            <iframe src="https://www.youtube.com/embed/bPFJuANnahE" frameborder="0"
-                class="w-full md:w-1/3 h-64 md:h-5/6 shadow-md shadow-black hover:shadow-none md:rounded-md hover:opacity-80 transition-transform duration-100"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen></iframe>
+            class="flex flex-col md:flex-row justify-center items-center w-full md:w-11/12 h-auto md:h-1/2 md:gap-14 md:overflow-y-auto">
+            <div class="flex flex-wrap justify-center items-center w-full h-auto md:h-full gap-2"
+                style="line-height: 0;">
+                @foreach (var youTubeURL in Model.IgdbDetails.VideosLinks)
+                {
+                    <div
+                        class=" animate-pulse w-11/12 md:w-32 xl:w-52 2xl:w-60 h-64 md:h-12 lg:h-24 xl:h-24 2xl:h-32 shadow-md shadow-black hover:shadow-none md:rounded-md hover:opacity-80 transition-transform duration-100 bg-gray-400">
+                        <iframe src="@youTubeURL" frameborder="0" class="w-full h-full z-20"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            onload="this.style.opacity = '1'; this.parentElement.classList.remove('animate-pulse');"
+                            allowfullscreen></iframe>
+                    </div>
+                }
+            </div>
         </div>
         <div id="screenshots"
             class="flex justify-center items-center w-full md:w-11/12 h-auto md:h-1/6 overflow-x-auto flex-shrink-0 bg-lime-800">
