@@ -27,7 +27,7 @@ namespace MyApp.Controllers
             _twitchTokenManager = twitchTokenManager;
         }
 
-        public async Task<IActionResult> Summary(string gameTitle = "No Man\u0027s Sky")
+        public async Task<IActionResult> Summary(string gameTitle = "diablo-iv")
         {
 
             // Client-ID: Client ID
@@ -47,13 +47,13 @@ namespace MyApp.Controllers
             // var body = $"search \"{gameTitle}\"; fields name, slug; limit 50;";
             // var body = $"fields name, screenshots, videos, themes, genres, category, summary, storyline, slug, dlcs, rating; where slug=\"{gameTitle}\";";
             // var body = "fields name, id, slug; where id<=80; limit 50;";
-            var body = "fields *; where id=33;";
+            var body = "fields *; where id=30864;";
 
             var content = new StringContent(body, Encoding.UTF8, "text/plain");
 
             // Send the POST
-            // var response = await _httpClient.PostAsync("https://api.igdb.com/v4/games", content);
-            var response = await _httpClient.PostAsync("https://api.igdb.com/v4/themes", content);
+            var response = await _httpClient.PostAsync("https://api.igdb.com/v4/game_videos", content);
+            // var response = await _httpClient.PostAsync("https://api.igdb.com/v4/themes", content);
             if (!response.IsSuccessStatusCode)
             {
                 return NotFound();
@@ -160,7 +160,7 @@ namespace MyApp.Controllers
             slugTitle = slugTitle.ToLower();
             Console.WriteLine($"My slug title is: {slugTitle}");
 
-            var body = $"fields name, screenshots, videos, themes, genres, category, summary, storyline, slug, dlcs, rating; where slug=\"{slugTitle}\";";
+            var body = $"fields id, name, screenshots, videos, themes, genres, category, summary, storyline, slug, dlcs, rating; where slug=\"{slugTitle}\";";
             // var body = "fields name, id, slug; where id<=80; limit 50;";
             // var body = "fields *; where id=337510;";
 
@@ -178,12 +178,22 @@ namespace MyApp.Controllers
             Console.WriteLine(responseIgdbString);
             var gamesJson = JArray.Parse(responseIgdbString);
             var gameJson = gamesJson[0];
+
             var name = (string)gameJson["name"];
+            var gameId = (string)gameJson["id"];
             var rating = (int)gameJson["rating"];
             var slug = (string)gameJson["slug"];
+            List<int> videosIDs = gameJson["videos"].ToObject<List<int>>();
+            string summary = (string)gameJson["summary"];
+            string storyLine = (string)gameJson["storyline"];
             List<int> themesIDs = gameJson["themes"].ToObject<List<int>>();
             List<int> genresIDs = gameJson["genres"].ToObject<List<int>>();
+
+
             List<string> themesGenres = new List<string>();
+            List<string> videoURLs = new List<string>();
+            Console.WriteLine($"MY SLUG IS: {slug}");
+            // Prepare themes, genres ,video links for youtbe, and screenshot links
             foreach (var themeID in themesIDs)
             {
                 Console.WriteLine($"Theme ID: {themeID}");
@@ -194,18 +204,33 @@ namespace MyApp.Controllers
                 Console.WriteLine($"Genre ID: {genreID}");
                 themesGenres.Add(_localData.Genres.Where(u => u.ID == genreID).Select(u => u.Name).FirstOrDefault());
             }
-            string summary = (string)gameJson["summary"];
-            string storyLine = (string)gameJson["storyline"];
+
+            var body2 = $"fields video_id; where game={gameId}; limit 8;";
+            var content2 = new StringContent(body2, Encoding.UTF8, "text/plain");
+            var responseVideosIgdb = await _httpClient.PostAsync("https://api.igdb.com/v4/game_videos", content2);
+
+            var jsonStringVideos = await responseVideosIgdb.Content.ReadAsStringAsync();
+            var jsonVideosLinksIds = JArray.Parse(jsonStringVideos);
+
+            List<string> youtubeURLs = new List<string>();
+            foreach (var videoJson in jsonVideosLinksIds)
+            {
+                var videoId = videoJson["video_id"];
+                var videoLink = $"https://www.youtube.com/embed/{videoId}";
+                youtubeURLs.Add(videoLink);
+            }
 
             // Populate ViewModel
             IndexGameVM IndexGameVM = new IndexGameVM();
+
             IndexGameVM.Game = game;
-            IndexGameVM.StoryLine = storyLine;
-            IndexGameVM.Summary = summary;
-            IndexGameVM.ThemesGenres = themesGenres;
-            IndexGameVM.Rating = rating;
-            IndexGameVM.Slug = slug;
-            IndexGameVM.RatingLink = $"https://www.igdb.com/games/{IndexGameVM.Slug}#community";
+            IndexGameVM.IgdbDetails.SlugTitle = slug;
+            IndexGameVM.IgdbDetails.StoryLine = storyLine;
+            IndexGameVM.IgdbDetails.Summary = summary;
+            IndexGameVM.IgdbDetails.ThemesGenres = themesGenres;
+            IndexGameVM.IgdbDetails.RatingCount = rating;
+            IndexGameVM.IgdbDetails.RatingLink = $"https://www.igdb.com/games/{IndexGameVM.IgdbDetails.SlugTitle}#community";
+            IndexGameVM.IgdbDetails.VideosLinks = youtubeURLs;
 
             return View(IndexGameVM); // devolver IndexGameVM
             //IndexGameVM.Game
