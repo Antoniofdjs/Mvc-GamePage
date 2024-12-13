@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using MyApp.Data;
 using MyApp.Models;
+using MyApp.Models.ViewModels;
 using Newtonsoft.Json.Linq;
 
 namespace MyApp.Controllers
@@ -26,7 +27,7 @@ namespace MyApp.Controllers
             _twitchTokenManager = twitchTokenManager;
         }
 
-        public async Task<IActionResult> Summary()
+        public async Task<IActionResult> Summary(string gameTitle = "No Man\u0027s Sky")
         {
 
             // Client-ID: Client ID
@@ -42,19 +43,33 @@ namespace MyApp.Controllers
             // Needs to be post method
             _httpClient.DefaultRequestHeaders.Add("Client-ID", clientId);
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _twitchTokenManager.TokenValue);
-            var body = $"fields name, screenshots; where name ~ \"Diablo\";";
+
+            // var body = $"search \"{gameTitle}\"; fields name, slug; limit 50;";
+            // var body = $"fields name, screenshots, videos, themes, genres, category, summary, storyline, slug, dlcs, rating; where slug=\"{gameTitle}\";";
+            // var body = "fields name, id, slug; where id<=80; limit 50;";
+            var body = "fields *; where id=33;";
+
             var content = new StringContent(body, Encoding.UTF8, "text/plain");
 
             // Send the POST
-            var response = await _httpClient.PostAsync("https://api.igdb.com/v4/games", content);
+            // var response = await _httpClient.PostAsync("https://api.igdb.com/v4/games", content);
+            var response = await _httpClient.PostAsync("https://api.igdb.com/v4/themes", content);
             if (!response.IsSuccessStatusCode)
             {
                 return NotFound();
             }
 
-            var responseData = await response.Content.ReadAsStringAsync();
-            Console.WriteLine(responseData);
-            return Ok(responseData);
+            var responseString = await response.Content.ReadAsStringAsync();
+            Console.WriteLine(responseString);
+            var gamesJson = JArray.Parse(responseString);
+            // var gameJson = gamesJson[0];
+            // var name = (string)gameJson["name"];
+            // List<int> themes = gameJson["themes"].ToObject<List<int>>();
+            // List<int> genres = gameJson["genres"].ToObject<List<int>>();
+            // string summary = (string)gameJson["summary"];
+            // string storyLine = (string)gameJson["storyline"];
+
+            return Ok(responseString);
         }
 
         public async Task<IActionResult> Index(int gameID, string searchTitle, string returnTo = "Home")
@@ -72,6 +87,7 @@ namespace MyApp.Controllers
             var jsonGame = JObject.Parse(jsonString);
             var jsonDeals = jsonGame["deals"];
 
+            // IndexGameVM IndexGameVM = new IndexGameVM();
             Game game = new Game();
             {
                 game.Title = (string)jsonGame["info"]["title"];
@@ -104,7 +120,7 @@ namespace MyApp.Controllers
 
             }
 
-            // Retrieve metacritic and steam ratings
+            // Retrieve metacritic and steam ratings from cheapShark
             string dealID = game.Deals[0].DealID;
             var responseDealSearch = await _httpClient.GetAsync($"https://www.cheapshark.com/api/1.0/deals?id={dealID}");
             if (responseDealSearch.IsSuccessStatusCode)
@@ -123,7 +139,77 @@ namespace MyApp.Controllers
                 }
             }
 
-            return View(game);
+            //Get IgdbDetails -------------------------------------------------------------------------------------------------------------
+            // Client-ID: Client ID
+            string clientId = Environment.GetEnvironmentVariable("CLIENT_ID");
+            string clientSecret = Environment.GetEnvironmentVariable("CLIENT_SECRET");
+
+            //expiration check
+            if (_twitchTokenManager.TokenExpiration == null || DateTime.Now >= _twitchTokenManager.TokenExpiration)
+            {
+                await _twitchTokenManager.RefreshToken();
+            }
+            _httpClient.DefaultRequestHeaders.Add("Client-ID", clientId);
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _twitchTokenManager.TokenValue);
+
+            // var body = "search \"Sid Meiers Civilization VI\"; fields name, slug; limit 50;";
+            string gameTitle = game.Title; // Testing with this, static value
+            string slugTitle = gameTitle.Replace(' ', '-');
+            slugTitle = slugTitle.Replace(":", ""); // Remove colons
+            slugTitle = slugTitle.Replace("'", "-"); // Remove colons
+            slugTitle = slugTitle.ToLower();
+            Console.WriteLine($"My slug title is: {slugTitle}");
+
+            var body = $"fields name, screenshots, videos, themes, genres, category, summary, storyline, slug, dlcs, rating; where slug=\"{slugTitle}\";";
+            // var body = "fields name, id, slug; where id<=80; limit 50;";
+            // var body = "fields *; where id=337510;";
+
+            var content = new StringContent(body, Encoding.UTF8, "text/plain");
+
+            // Send the POST
+            var responseIgdb = await _httpClient.PostAsync("https://api.igdb.com/v4/games", content);
+            // var response = await _httpClient.PostAsync("https://api.igdb.com/v4/screenshots", content);
+            if (!response.IsSuccessStatusCode)
+            {
+                return NotFound();
+            }
+
+            var responseIgdbString = await responseIgdb.Content.ReadAsStringAsync();
+            Console.WriteLine(responseIgdbString);
+            var gamesJson = JArray.Parse(responseIgdbString);
+            var gameJson = gamesJson[0];
+            var name = (string)gameJson["name"];
+            var rating = (int)gameJson["rating"];
+            var slug = (string)gameJson["slug"];
+            List<int> themesIDs = gameJson["themes"].ToObject<List<int>>();
+            List<int> genresIDs = gameJson["genres"].ToObject<List<int>>();
+            List<string> themesGenres = new List<string>();
+            foreach (var themeID in themesIDs)
+            {
+                Console.WriteLine($"Theme ID: {themeID}");
+                themesGenres.Add(_localData.Themes.Where(u => u.ID == themeID).Select(u => u.Name).FirstOrDefault());
+            }
+            foreach (var genreID in genresIDs)
+            {
+                Console.WriteLine($"Genre ID: {genreID}");
+                themesGenres.Add(_localData.Genres.Where(u => u.ID == genreID).Select(u => u.Name).FirstOrDefault());
+            }
+            string summary = (string)gameJson["summary"];
+            string storyLine = (string)gameJson["storyline"];
+
+            // Populate ViewModel
+            IndexGameVM IndexGameVM = new IndexGameVM();
+            IndexGameVM.Game = game;
+            IndexGameVM.StoryLine = storyLine;
+            IndexGameVM.Summary = summary;
+            IndexGameVM.ThemesGenres = themesGenres;
+            IndexGameVM.Rating = rating;
+            IndexGameVM.Slug = slug;
+            IndexGameVM.RatingLink = $"https://www.igdb.com/games/{IndexGameVM.Slug}#community";
+
+            return View(IndexGameVM); // devolver IndexGameVM
+            //IndexGameVM.Game
+            //IndexGameVM.IgdbDetails
         }
     }
 }
