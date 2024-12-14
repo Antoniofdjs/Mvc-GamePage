@@ -3,8 +3,8 @@ namespace MyApp.Models.ViewModels
 {
     public class IndexGameVM
     {
-        public Game Game { get; set; } // cheapShark only
-        public IgdbDetails IgdbDetails { get; set; }// Igdb Only
+        public Game? Game { get; set; } = null; // cheapShark only
+        public IgdbDetails? IgdbDetails { get; set; } = null;// Igdb Only
 
         //Game
         //IgdbDetails

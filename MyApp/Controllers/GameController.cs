@@ -3,6 +3,7 @@ using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using MyApp.Data;
+using MyApp.Services.IGDB;
 using MyApp.Models;
 using MyApp.Models.ViewModels;
 using Newtonsoft.Json.Linq;
@@ -14,17 +15,18 @@ namespace MyApp.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly HttpClient _httpClient;
         private readonly LocalData _localData;
-
+        private readonly Igdb _igdbAPI;
         private readonly TwitchTokenManager _twitchTokenManager;
         private IMemoryCache _cache;
 
-        public GameController(ILogger<HomeController> logger, HttpClient httpClient, LocalData localData, TwitchTokenManager twitchTokenManager, IMemoryCache cache)
+        public GameController(ILogger<HomeController> logger, HttpClient httpClient, LocalData localData, TwitchTokenManager twitchTokenManager, IMemoryCache cache, Igdb igdb)
         {
             _logger = logger;
             _httpClient = httpClient;
             _localData = localData;
             _cache = cache;
             _twitchTokenManager = twitchTokenManager;
+            _igdbAPI = igdb;
         }
 
         public async Task<IActionResult> Summary(string gameTitle = "diablo-iv")
@@ -119,6 +121,9 @@ namespace MyApp.Controllers
                 }
 
             }
+            // Populate ViewModel
+            IndexGameVM IndexGameVM = new IndexGameVM();
+            IndexGameVM.Game = game;
 
             // Retrieve metacritic and steam ratings from cheapShark
             string dealID = game.Deals[0].DealID;
@@ -140,101 +145,28 @@ namespace MyApp.Controllers
             }
 
             //Get IgdbDetails -------------------------------------------------------------------------------------------------------------
-            // Client-ID: Client ID
             string clientId = Environment.GetEnvironmentVariable("CLIENT_ID");
             string clientSecret = Environment.GetEnvironmentVariable("CLIENT_SECRET");
-
-            //expiration check
-            if (_twitchTokenManager.TokenExpiration == null || DateTime.Now >= _twitchTokenManager.TokenExpiration)
-            {
-                await _twitchTokenManager.RefreshToken();
-            }
-            _httpClient.DefaultRequestHeaders.Add("Client-ID", clientId);
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _twitchTokenManager.TokenValue);
 
             // var body = "search \"Sid Meiers Civilization VI\"; fields name, slug; limit 50;";
             string gameTitle = game.Title; // Testing with this, static value
             string slugTitle = gameTitle.Replace(' ', '-');
             slugTitle = slugTitle.Replace(":", ""); // Remove colons
-            slugTitle = slugTitle.Replace("'", "-"); // Remove colons
+            slugTitle = slugTitle.Replace("'", "-");
             slugTitle = slugTitle.ToLower();
             Console.WriteLine($"My slug title is: {slugTitle}");
 
-            var body = $"fields id, name, screenshots, videos, themes, genres, category, summary, storyline, slug, dlcs, rating; where slug=\"{slugTitle}\";";
-            // var body = "fields name, id, slug; where id<=80; limit 50;";
-            // var body = "fields *; where id=337510;";
-
-            var content = new StringContent(body, Encoding.UTF8, "text/plain");
-
-            // Send the POST
-            var responseIgdb = await _httpClient.PostAsync("https://api.igdb.com/v4/games", content);
-            // var response = await _httpClient.PostAsync("https://api.igdb.com/v4/screenshots", content);
-            if (!response.IsSuccessStatusCode)
+            try
             {
-                return NotFound();
+                IndexGameVM.IgdbDetails = await _igdbAPI.GameDetails(slugTitle); // Will fecth all details and video links
             }
-
-            var responseIgdbString = await responseIgdb.Content.ReadAsStringAsync();
-            Console.WriteLine(responseIgdbString);
-            var gamesJson = JArray.Parse(responseIgdbString);
-            var gameJson = gamesJson[0];
-
-            var name = (string)gameJson["name"];
-            var gameId = (string)gameJson["id"];
-            var rating = (int)gameJson["rating"];
-            var slug = (string)gameJson["slug"];
-            List<int> videosIDs = gameJson["videos"].ToObject<List<int>>();
-            string summary = (string)gameJson["summary"];
-            string storyLine = (string)gameJson["storyline"];
-            List<int> themesIDs = gameJson["themes"].ToObject<List<int>>();
-            List<int> genresIDs = gameJson["genres"].ToObject<List<int>>();
-
-
-            List<string> themesGenres = new List<string>();
-            List<string> videoURLs = new List<string>();
-            Console.WriteLine($"MY SLUG IS: {slug}");
-            // Prepare themes, genres ,video links for youtbe, and screenshot links
-            foreach (var themeID in themesIDs)
+            catch (Exception ex)
             {
-                Console.WriteLine($"Theme ID: {themeID}");
-                themesGenres.Add(_localData.Themes.Where(u => u.ID == themeID).Select(u => u.Name).FirstOrDefault());
+                Console.WriteLine($"An error occurred retrieving IgdbDetails: {ex.Message}");
+                //IgdbDetails will remain null
             }
-            foreach (var genreID in genresIDs)
-            {
-                Console.WriteLine($"Genre ID: {genreID}");
-                themesGenres.Add(_localData.Genres.Where(u => u.ID == genreID).Select(u => u.Name).FirstOrDefault());
-            }
-
-            var body2 = $"fields video_id; where game={gameId}; limit 8;";
-            var content2 = new StringContent(body2, Encoding.UTF8, "text/plain");
-            var responseVideosIgdb = await _httpClient.PostAsync("https://api.igdb.com/v4/game_videos", content2);
-
-            var jsonStringVideos = await responseVideosIgdb.Content.ReadAsStringAsync();
-            var jsonVideosLinksIds = JArray.Parse(jsonStringVideos);
-
-            List<string> youtubeURLs = new List<string>();
-            foreach (var videoJson in jsonVideosLinksIds)
-            {
-                var videoId = videoJson["video_id"];
-                var videoLink = $"https://www.youtube.com/embed/{videoId}";
-                youtubeURLs.Add(videoLink);
-            }
-
-            // Populate ViewModel
-            IndexGameVM IndexGameVM = new IndexGameVM();
-
-            IndexGameVM.Game = game;
-            IndexGameVM.IgdbDetails.SlugTitle = slug;
-            IndexGameVM.IgdbDetails.StoryLine = storyLine;
-            IndexGameVM.IgdbDetails.Summary = summary;
-            IndexGameVM.IgdbDetails.ThemesGenres = themesGenres;
-            IndexGameVM.IgdbDetails.RatingCount = rating;
-            IndexGameVM.IgdbDetails.RatingLink = $"https://www.igdb.com/games/{IndexGameVM.IgdbDetails.SlugTitle}#community";
-            IndexGameVM.IgdbDetails.VideosLinks = youtubeURLs;
 
             return View(IndexGameVM); // devolver IndexGameVM
-            //IndexGameVM.Game
-            //IndexGameVM.IgdbDetails
         }
     }
 }
