@@ -15,18 +15,18 @@ namespace MyApp.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly HttpClient _httpClient;
         private readonly LocalData _localData;
-        private readonly Igdb _igdbAPI;
+        private readonly IgdbAPI _igdbAPI;
         private readonly TwitchTokenManager _twitchTokenManager;
         private IMemoryCache _cache;
 
-        public GameController(ILogger<HomeController> logger, HttpClient httpClient, LocalData localData, TwitchTokenManager twitchTokenManager, IMemoryCache cache, Igdb igdb)
+        public GameController(ILogger<HomeController> logger, HttpClient httpClient, LocalData localData, TwitchTokenManager twitchTokenManager, IMemoryCache cache, IgdbAPI igdbApi)
         {
             _logger = logger;
             _httpClient = httpClient;
             _localData = localData;
             _cache = cache;
             _twitchTokenManager = twitchTokenManager;
-            _igdbAPI = igdb;
+            _igdbAPI = igdbApi;
         }
 
         public async Task<IActionResult> Summary(string gameTitle = "diablo-iv")
@@ -49,13 +49,13 @@ namespace MyApp.Controllers
             // var body = $"search \"{gameTitle}\"; fields name, slug; limit 50;";
             // var body = $"fields name, screenshots, videos, themes, genres, category, summary, storyline, slug, dlcs, rating; where slug=\"{gameTitle}\";";
             // var body = "fields name, id, slug; where id<=80; limit 50;";
-            var body = "fields *; where id=30864;";
+            var body = "fields abbreviation, id, name, platform_family; where id=130; limit 50;";
 
             var content = new StringContent(body, Encoding.UTF8, "text/plain");
 
             // Send the POST
-            var response = await _httpClient.PostAsync("https://api.igdb.com/v4/game_videos", content);
-            // var response = await _httpClient.PostAsync("https://api.igdb.com/v4/themes", content);
+            // var response = await _httpClient.PostAsync("https://api.igdb.com/v4/game_videos", content);
+            var response = await _httpClient.PostAsync("https://api.igdb.com/v4/platforms", content);
             if (!response.IsSuccessStatusCode)
             {
                 return NotFound();
