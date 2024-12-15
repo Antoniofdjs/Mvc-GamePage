@@ -147,10 +147,10 @@
         </div>
     </div>
     <div id="game-details"
-        class="flex flex-col justify-start items-center w-full md:w-3/4 h-full md:max-h-screen md:gap-4 bg-gradient-to-b from-slate-950 to-purple-800">
-        <div id="navigation-div" class="flex flex-col justify-start items-center w-full h-auto">
+        class="flex flex-col justify-start items-center w-full md:w-3/4 h-full md:gap-4 bg-gradient-to-b from-slate-950 to-purple-800">
+        <div id="summaryContainer" class="flex flex-col justify-start items-center w-full h-auto md:min-h-1/4 gap-4">
             <div
-                class="flex justify-center md:justify-start items-start w-full h-12 text-white text-center text-2xl text-center font-bold gap-8 pl-4 bg-white/20">
+                class="flex justify-center md:justify-start items-start w-full h-14 text-white text-center text-2xl text-center font-bold gap-8 pl-4">
                 <button class="text-center border-b border-purple-300 text-purple-300 px-2">
                     About
                 </button>
@@ -161,15 +161,63 @@
                     More
                 </button>
             </div>
+            <p
+                class="w-11/12 h-5/6 text-white text-center text-md  lg:text-xs xl:text-base 2xl:text-base text-center text-md">
+                Set in the
+                @Model.IgdbDetails.StoryLine<br>
+                @Model.IgdbDetails.Summary
+            </p>
         </div>
-        <p
-            class="w-11/12 text-white text-center text-md  lg:text-xs xl:text-lg 2xl:text-base text-center text-md bg-purple-300/20 md:min-h-32 overflow-hidden">
-            @Model.IgdbDetails.Summary
-        </p>
-        <p
-            class="w-11/12 h-1/4 text-white text-center text-md  lg:text-xs xl:text-lg 2xl:text-base text-center text-md bg-purple-300/40 overflow-hidden">
-            @Model.IgdbDetails.StoryLine
-        </p>
+        <div id="videos-container"
+            class="flex flex-col md:flex-row justify-center items-center w-full md:w-11/12 h-auto md:h-1/2 md:gap-14 md:overflow-y-auto no-scrollbar">
+            <div class="flex flex-wrap justify-center items-center w-full h-auto md:h-full gap-2"
+                style="line-height: 0;">
+                @foreach (var youTubeURL in Model.IgdbDetails.VideosLinks)
+                {
+                    <div
+                        class=" animate-pulse w-full md:w-32 xl:w-52 2xl:w-60 h-64 md:h-12 lg:h-24 xl:h-24 2xl:h-32 shadow-md shadow-black hover:shadow-none md:rounded-md hover:opacity-80 transition-transform duration-100 bg-gray-400">
+                        <iframe src="@youTubeURL" frameborder="0" class="w-full h-full z-20"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            onload="this.style.opacity = '1'; this.parentElement.classList.remove('animate-pulse');"
+                            allowfullscreen></iframe>
+                    </div>
+                }
+            </div>
+        </div>
+        <div id="screenshots"
+            class="flex justify-center items-center w-full md:w-11/12 h-auto md:h-1/6 overflow-x-auto my-scrollbar flex-shrink-0">
+            <div class="flex w-auto h-full min-w-0 gap-1 overflow-y-hidden px-2 my-scrollbar">
+                <div class="w-40 h-40 bg-red-800 flex-shrink-0 border border-purple-300 rounded-sm">
+                    <img src="https://images.igdb.com/igdb/image/upload/t_screenshot_med/sc78fa.jpg"
+                        class="w-full h-full object-cover shadow-md shadow-black hover:scale-110 transition-transform duration-100" />
+                </div>
+                <div class="w-40 h-40 bg-red-800 flex-shrink-0 border border-purple-300">
+                    <img src="https://cdn.wikimg.net/en/strategywiki/images/7/7f/COD2_crossingtherhine.jpg"
+                        class="w-full h-full object-cover shadow-md shadow-black hover:scale-110 transition-transform duration-100" />
+                </div>
+                <div class="w-40 h-40 bg-red-800 flex-shrink-0 border border-purple-300">
+                    <img src="https://www.gamespot.com/a/uploads/original/gamespot/images/2005/121/reviews/656049-921995_20050502_001.jpg"
+                        class="w-full h-full object-cover shadow-md shadow-black hover:scale-110 transition-transform duration-100" />
+                </div>
+                <div class="w-40 h-40 bg-red-800 flex-shrink-0 border border-purple-300">
+                    <img src="https://www.gamespot.com/a/uploads/original/gamespot/images/2005/108/reviews/653811-921995_20050419_004.jpg"
+                        class="w-full h-full object-cover shadow-md shadow-black hover:scale-110 transition-transform duration-100" />
+                </div>
+                <div class="w-40 h-40 bg-red-800 flex-shrink-0 border border-purple-300">
+                    <img src="https://cdn.wikimg.net/en/strategywiki/images/7/7f/COD2_crossingtherhine.jpg"
+                        class="w-full h-full object-cover shadow-md shadow-black hover:scale-110 transition-transform duration-100" />
+                </div>
+                <div class="w-40 h-40 bg-red-800 flex-shrink-0 border border-purple-300">
+                    <img src="https://www.gamespot.com/a/uploads/original/gamespot/images/2005/121/reviews/656049-921995_20050502_001.jpg"
+                        class="w-full h-full object-cover shadow-md shadow-black hover:scale-110 transition-transform duration-100" />
+                </div>
+                <div class="w-40 h-40 bg-red-800 flex-shrink-0 border border-purple-300">
+                    <img src="https://www.gamespot.com/a/uploads/original/gamespot/images/2005/108/reviews/653811-921995_20050419_004.jpg"
+                        class="w-full h-full object-cover shadow-md shadow-black hover:scale-110 transition-transform duration-100" />
+                </div>
+
+            </div>
+        </div>
     </div>
 </section>
 
