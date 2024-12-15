@@ -21,12 +21,12 @@ builder.Services.AddSingleton<TwitchTokenManager>(provider =>
 });
 
 // IGDB api service class
-builder.Services.AddSingleton<Igdb>(provider =>
+builder.Services.AddSingleton<IgdbAPI>(provider =>
 {
     var httpClient = provider.GetRequiredService<HttpClient>();
     var twitchTokenManager = provider.GetRequiredService<TwitchTokenManager>();
     var localData = provider.GetRequiredService<LocalData>();
-    return new Igdb(httpClient, twitchTokenManager, localData);
+    return new IgdbAPI(httpClient, twitchTokenManager, localData);
 });
 
 
