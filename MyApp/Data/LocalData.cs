@@ -1,4 +1,3 @@
-using MyApp.Models;
 using System.Collections.Generic;
 
 namespace MyApp.Data
@@ -50,7 +49,7 @@ namespace MyApp.Data
             new Theme(38, "Open world"),
             new Theme(39, "Warfare"),
             new Theme(40, "Party"),
-            new Theme(41, "4X (explore, expand, exploit, and exterminate)"),
+            new Theme(41, "4X"),
             new Theme(42, "Erotic"),
             new Theme(43, "Mystery"),
             new Theme(44, "Romance"),
@@ -80,6 +79,50 @@ namespace MyApp.Data
             new Genre(34, "Visual Novel"),
             new Genre(35, "Card \u0026 Board Game"),
             new Genre(36, "MOBA"),
+        };
+
+        public List<Platform> Platforms = new List<Platform>{ // Id and abrbreviation
+            //Pc and Vr and mobile
+            new Platform(3,"Linux"),
+            new Platform(6,"Pc(Windows)"),
+            new Platform(14,"Mac"),
+            new Platform(39,"iOS"),
+            new Platform(163,"Steam VR"),
+            new Platform(387,"Oculus Go"),
+            new Platform(384,"Oculus Quest"),
+            new Platform(385,"Oculus Rift"),
+            new Platform(386,"Meta Quest 2"),
+            new Platform(405,"Windows Mobile"),
+            new Platform(471,"Meta Quest 3"),
+
+
+
+            
+            // Sony (family id:1)
+            new Platform(7,"PS1"),
+            new Platform(8,"PS2"),
+            new Platform(9,"PS3"),
+            new Platform(38,"PSP"),
+            new Platform(46,"PS Vita"),
+            new Platform(48,"PS4"),
+            new Platform(165,"PSVR"),
+            new Platform(167,"PS5"),
+            new Platform(390,"PSVR2"),
+
+            //MicroSoft (family id:2)
+            new Platform(11,"Xbox"),
+            new Platform(12,"Xbox 360"),
+            new Platform(49,"Xbox One"),
+            new Platform(169,"Xbox X/S"),
+
+            //Nintendo (family id:5)
+            new Platform(20,"Nintendo DS"),
+            new Platform(21,"Game Cube"),
+            new Platform(22,"GB(Color)"),
+            new Platform(24,"GB(Advanced)"),
+            new Platform(41,"Wii U"),
+            new Platform(130,"Switch"),
+
         };
     }
 }
