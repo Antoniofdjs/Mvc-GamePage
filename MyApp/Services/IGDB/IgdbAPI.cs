@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Net.Http.Headers;
 using System.Text;
+using MyApp.Models.Igdb;
 using System.Text.Json.Nodes;
 using MyApp.Data;
 using MyApp.Models;
@@ -9,13 +10,13 @@ namespace MyApp.Services.IGDB
 {
 
     // All igdb api request endpoints will be made here
-    public class Igdb
+    public class IgdbAPI
     {
         private readonly HttpClient _httpClient;
         private readonly TwitchTokenManager _twitchTokenManager;
         private readonly LocalData _localData;
 
-        public Igdb(HttpClient httpClient, TwitchTokenManager twitchTokenManager, LocalData localData)
+        public IgdbAPI(HttpClient httpClient, TwitchTokenManager twitchTokenManager, LocalData localData)
         {
 
             _httpClient = httpClient;
@@ -48,7 +49,7 @@ namespace MyApp.Services.IGDB
         }
 
         // Fecth all game details and return the IgdbDetails Model
-        public async Task<IgdbDetails> GameDetails(string slugTitle)
+        public async Task<IgdbGameDetails> GameDetails(string slugTitle)
         {
             bool tokenSucces = await PrepareRequestAsync();
             if (!tokenSucces)
@@ -56,7 +57,7 @@ namespace MyApp.Services.IGDB
                 throw new InvalidOperationException("Failed to refresh token.");
             }
 
-            var body = $"fields id, name, screenshots, videos, themes, genres, category, summary, storyline, slug, dlcs, rating; where slug=\"{slugTitle}\";";
+            var body = $"fields id, name, themes, genres, platforms, category, summary, storyline, slug, rating; where slug=\"{slugTitle}\";";
             var content = new StringContent(body, Encoding.UTF8, "text/plain");
 
             // Send the POST
@@ -71,7 +72,7 @@ namespace MyApp.Services.IGDB
             var gamesJson = JArray.Parse(responseIgdbString);
             var gameJson = gamesJson[0];
 
-            IgdbDetails igdbDetails = new IgdbDetails();
+            IgdbGameDetails igdbDetails = new IgdbGameDetails();
 
             igdbDetails.SlugTitle = (string)gameJson["slug"];
             igdbDetails.StoryLine = (string)gameJson["storyline"];
@@ -80,6 +81,12 @@ namespace MyApp.Services.IGDB
             igdbDetails.RatingLink = $"https://www.igdb.com/games/{igdbDetails.SlugTitle}#community";
             igdbDetails.GameName = (string)gameJson["name"];
             igdbDetails.GameID = (string)gameJson["id"];
+
+            foreach (var platformId in gameJson["platforms"].ToObject<List<int>>())
+            {
+                Console.WriteLine($"Platform id: {platformId}");
+                igdbDetails.Platforms.Add(_localData.Platforms.Where(u => u.ID == platformId).Select(u => u.Name).OrderByDescending(name => name).FirstOrDefault());
+            }
             foreach (var themeID in gameJson["themes"].ToObject<List<int>>())
             {
                 Console.WriteLine($"Theme ID: {themeID}");
@@ -89,24 +96,6 @@ namespace MyApp.Services.IGDB
             {
                 Console.WriteLine($"Genre ID: {genreID}");
                 igdbDetails.ThemesGenres.Add(_localData.Genres.Where(u => u.ID == genreID).Select(u => u.Name).FirstOrDefault());
-            }
-
-            try
-            {
-                igdbDetails.VideosLinks = await Videos(igdbDetails.GameID);
-
-            }
-            catch (HttpRequestException ex) // http request failed
-            {
-                Console.WriteLine($"An error occurred: {ex.Message}");
-                throw new InvalidOperationException("An error occurred while processing the request.");
-
-            }
-            catch (InvalidOperationException ex) // refresh token failed
-            {
-                Console.WriteLine($"An error occurred: {ex.Message}");
-                throw new InvalidOperationException("An error occurred while processing refresh token");
-
             }
 
             return igdbDetails;

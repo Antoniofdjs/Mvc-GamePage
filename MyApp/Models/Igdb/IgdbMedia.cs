@@ -22,11 +22,13 @@ namespace MyApp.Models.Igdb
 {
 
     //Igdb theme data from api
-    public class ScreenShot
+    public class IgdbMedia
     {
-        public string CoverSizeURL { get; set; } //"https://images.igdb.com/igdb/image/upload/t_screenshot_med/*.webp"
-        public string OriginalSizeURL { get; set; } //"https://images.igdb.com/igdb/image/upload/t_original/*.webp"
+        public List<string> CoverSizeURL { get; set; } = new List<string>(); //"https://images.igdb.com/igdb/image/upload/t_screenshot_med/{image_id}*.webp"
+        public List<string> OriginalSizeURL { get; set; } = new List<string>(); //"https://images.igdb.com/igdb/image/upload/t_original/*.webp"
 
-        public ScreenShot() { }
+        public List<string> YoutubeLinks { get; set; } = new List<string>(); // Complete youtube Video Link EMBED "https://www.youtube.com/embed/{videoId}"
+
+        public IgdbMedia() { }
     }
 }

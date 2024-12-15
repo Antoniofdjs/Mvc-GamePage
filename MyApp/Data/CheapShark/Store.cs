@@ -1,4 +1,4 @@
-namespace MyApp.Models
+namespace MyApp.Data
 {
 
     public class Store
