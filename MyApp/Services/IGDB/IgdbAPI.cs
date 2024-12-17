@@ -6,6 +6,8 @@ using System.Text.Json.Nodes;
 using MyApp.Data;
 using MyApp.Models;
 using Newtonsoft.Json.Linq;
+using Microsoft.AspNetCore.Http.HttpResults;
+using System.Net;
 namespace MyApp.Services.IGDB
 {
 
@@ -48,9 +50,9 @@ namespace MyApp.Services.IGDB
             return true;
         }
 
-        // Fecth all game details and return the IgdbDetails Model
-        public async Task<IgdbGameDetails> GameDetails(string slugTitle)
+        public async Task<HttpResponseMessage> GameDetails(string slugTitle)
         {
+
             bool tokenSucces = await PrepareRequestAsync();
             if (!tokenSucces)
             {
@@ -64,42 +66,120 @@ namespace MyApp.Services.IGDB
             var response = await _httpClient.PostAsync("https://api.igdb.com/v4/games", content);
             if (!response.IsSuccessStatusCode)
             {
-                throw new InvalidOperationException($"Error{response.StatusCode}with api.igdb.com/v4/games.");
+                return response;
             }
 
             var responseIgdbString = await response.Content.ReadAsStringAsync();
-            Console.WriteLine(responseIgdbString);
             var gamesJson = JArray.Parse(responseIgdbString);
+            if (gamesJson.Count <= 0)
+            {
+                return new HttpResponseMessage(HttpStatusCode.NotFound)
+                {
+                    Content = new StringContent("{\"Message\": \"Error\"}", Encoding.UTF8, "application/json")
+                };
+
+            }
             var gameJson = gamesJson[0];
 
-            IgdbGameDetails igdbDetails = new IgdbGameDetails();
+            // Lists/arrays for the JObject
+            List<int> platformsIds = gameJson["platforms"]?.ToObject<List<int>>() ?? new List<int>();
+            List<int> themesIds = gameJson["themes"]?.ToObject<List<int>>() ?? new List<int>();
+            List<int> genresIds = gameJson["genres"]?.ToObject<List<int>>() ?? new List<int>();
 
-            igdbDetails.SlugTitle = (string)gameJson["slug"];
-            igdbDetails.StoryLine = (string)gameJson["storyline"];
-            igdbDetails.Summary = (string)gameJson["summary"];
-            igdbDetails.RatingCount = (int)gameJson["rating"];
-            igdbDetails.RatingLink = $"https://www.igdb.com/games/{igdbDetails.SlugTitle}#community";
-            igdbDetails.GameName = (string)gameJson["name"];
-            igdbDetails.GameID = (string)gameJson["id"];
+            JObject result = new JObject
+            {
+                ["id"] = gameJson.Value<string>("id") ?? "",
+                ["slug"] = gameJson.Value<string>("slug") ?? "",
+                ["name"] = gameJson.Value<string>("name") ?? "",
+                ["storyline"] = gameJson.Value<string>("storyline") ?? "",
+                ["summary"] = gameJson.Value<string>("summary") ?? "",
+                ["rating"] = gameJson.Value<int?>("rating") ?? 0,
+                ["platforms"] = JArray.FromObject(platformsIds),
+                ["themes"] = JArray.FromObject(themesIds),
+                ["genres"] = JArray.FromObject(genresIds)
+            };
 
-            foreach (var platformId in gameJson["platforms"].ToObject<List<int>>())
+            var myResponse = new HttpResponseMessage(HttpStatusCode.OK)
             {
-                Console.WriteLine($"Platform id: {platformId}");
-                igdbDetails.Platforms.Add(_localData.Platforms.Where(u => u.ID == platformId).Select(u => u.Name).OrderByDescending(name => name).FirstOrDefault());
-            }
-            foreach (var themeID in gameJson["themes"].ToObject<List<int>>())
-            {
-                Console.WriteLine($"Theme ID: {themeID}");
-                igdbDetails.ThemesGenres.Add(_localData.Themes.Where(u => u.ID == themeID).Select(u => u.Name).FirstOrDefault());
-            }
-            foreach (var genreID in gameJson["genres"].ToObject<List<int>>())
-            {
-                Console.WriteLine($"Genre ID: {genreID}");
-                igdbDetails.ThemesGenres.Add(_localData.Genres.Where(u => u.ID == genreID).Select(u => u.Name).FirstOrDefault());
-            }
+                Content = new StringContent(result.ToString(), Encoding.UTF8, "application/json")
+            };
 
-            return igdbDetails;
+            Console.WriteLine("Response succes, json fetched from api/games");
+            return myResponse;
         }
+
+        // Fecth all game details and return the IgdbDetails Model
+        // public async Task<IgdbGameDetails> GameDetails(string slugTitle)
+        // {
+        //     bool tokenSucces = await PrepareRequestAsync();
+        //     if (!tokenSucces)
+        //     {
+        //         throw new InvalidOperationException("Failed to refresh token.");
+        //     }
+
+        //     var body = $"fields id, name, themes, genres, platforms, category, summary, storyline, slug, rating; where slug=\"{slugTitle}\";";
+        //     var content = new StringContent(body, Encoding.UTF8, "text/plain");
+
+        //     // Send the POST
+        //     var response = await _httpClient.PostAsync("https://api.igdb.com/v4/games", content);
+        //     if (!response.IsSuccessStatusCode)
+        //     {
+        //         throw new InvalidOperationException($"Error{response.StatusCode}with api.igdb.com/v4/games.");
+        //     }
+
+        //     var responseIgdbString = await response.Content.ReadAsStringAsync();
+        //     Console.WriteLine(responseIgdbString);
+        //     var gamesJson = JArray.Parse(responseIgdbString);
+        //     if (gamesJson.Count <= 0)
+        //     {
+        //         return new IgdbGameDetails();
+        //     }
+        //     var gameJson = gamesJson[0];
+
+        //     IgdbGameDetails igdbDetails = new IgdbGameDetails();
+
+        //     igdbDetails.GameID = (string)gameJson["id"];
+        //     if (string.IsNullOrEmpty(igdbDetails.GameID))
+        //     {
+        //         return new IgdbGameDetails();
+        //     }
+        //     igdbDetails.SlugTitle = gameJson.Value<string>("slug") ?? "";
+        //     if (string.IsNullOrEmpty(igdbDetails.SlugTitle))
+        //     {
+        //         return new IgdbGameDetails();
+        //     }
+        //     igdbDetails.StoryLine = gameJson.Value<string>("storyline") ?? "";
+        //     igdbDetails.Summary = gameJson.Value<string>("summary") ?? "";
+        //     igdbDetails.RatingCount = gameJson.Value<int?>("rating") ?? 0;
+        //     igdbDetails.RatingLink = $"https://www.igdb.com/games/{igdbDetails.SlugTitle}#community";
+        //     igdbDetails.GameName = (string)gameJson["name"];
+        //     var platformsIds = gameJson["platforms"]?.ToObject<List<int>>() ?? new List<int>();
+        //     foreach (var platformId in platformsIds)
+        //     {
+        //         Console.WriteLine($"Platform id: {platformId}");
+        //         igdbDetails.Platforms.Add(_localData.Platforms.Where(u => u.ID == platformId).Select(u => u.Name).OrderByDescending(name => name).FirstOrDefault());
+        //     }
+        //     var themesIds = gameJson["themes"]?.ToObject<List<int>>() ?? new List<int>();
+        //     foreach (var themeID in themesIds)
+        //     {
+        //         Console.WriteLine($"Theme ID: {themeID}");
+        //         igdbDetails.ThemesGenres.Add(_localData.Themes
+        //             .Where(u => u.ID == themeID)
+        //             .Select(u => u.Name)
+        //             .FirstOrDefault());
+        //     }
+        //     var genresIds = gameJson["genres"]?.ToObject<List<int>>() ?? new List<int>();
+        //     foreach (var genreID in genresIds)
+        //     {
+        //         Console.WriteLine($"Genre ID: {genreID}");
+        //         igdbDetails.ThemesGenres.Add(_localData.Genres
+        //             .Where(u => u.ID == genreID)
+        //             .Select(u => u.Name)
+        //             .FirstOrDefault());
+        //     }
+
+        //     return igdbDetails;
+        // }
 
         /* Get all videos by gameID, returns the IEnumberable(like a list) of youtube links, max of 8 */
         public async Task<List<string>> Videos(string gameID)
@@ -117,7 +197,7 @@ namespace MyApp.Services.IGDB
             var response = await _httpClient.PostAsync("https://api.igdb.com/v4/game_videos", content);
             if (!response.IsSuccessStatusCode)
             {
-                throw new HttpRequestException($"Failed error:{response.StatusCode} to make API call api.igdb.com/v4/game_videos");
+                throw new HttpRequestException($"Failed error:{response.StatusCode} call to api.igdb.com/v4/game_videos");
 
             }
 
@@ -128,7 +208,6 @@ namespace MyApp.Services.IGDB
                 .Where(videoJson => videoJson["video_id"] != null && !string.IsNullOrEmpty((string)videoJson["video_id"]))
                 .Select(videoJson => $"https://www.youtube.com/embed/{videoJson["video_id"]}")
                 .ToList();
-
             return youtubeURLs;
         }
 
