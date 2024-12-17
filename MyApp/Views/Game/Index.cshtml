@@ -103,36 +103,42 @@
                         }
                     </div>
                 </div>
-                <div id="others-container" class="flex flex-col justify-center items-center w-full h-auto">
-                    <h3
-                        class="flex justify-center items-center w-3/4 md:w-1/2 h-14 md:h-10 text-center text-white text-3xl md:text-xl px-2 border-b-2 md:border-b mb-4">
-                        Themes</h3>
-                    <div class="flex justify-center w-10/12 h-auto">
-                        <ul class="flex flex-wrap justify-center w-full gap-1">
-                            @foreach (var themeGenre in Model.IgdbDetails.ThemesGenres)
-                            {
-                                <li class="w-auto text-gray-300 border text-center rounded-full bg-slate-900 px-2">
-                                    <p class="text-xl md:text-base">@themeGenre</p>
-                                </li>
-                            }
-                        </ul>
+                @if (!string.IsNullOrEmpty(Model.IgdbDetails.GameID))
+                {
+                    <div id="others-container" class="flex flex-col justify-center items-center w-full h-auto">
+                        <h3
+                            class="flex justify-center items-center w-3/4 md:w-1/2 h-14 md:h-10 text-center text-white text-3xl md:text-xl px-2 border-b-2 md:border-b mb-4">
+                            Themes</h3>
+                        <div class="flex justify-center w-10/12 h-auto">
+                            <ul class="flex flex-wrap justify-center w-full gap-1">
+                                @foreach (var themeGenre in Model.IgdbDetails.ThemesGenres)
+                                {
+                                    <li class="w-auto text-gray-300 border text-center rounded-full bg-slate-900 px-2">
+                                        <p class="text-xl md:text-base">@themeGenre</p>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
                     </div>
-                </div>
-                <div id="others-container" class="flex flex-col justify-center items-center w-full h-auto">
-                    <h3
-                        class="flex justify-center items-center w-3/4 md:w-1/2 h-14 md:h-10 text-center text-white text-3xl md:text-xl px-2 border-b-2 md:border-b mb-4">
-                        Platforms</h3>
-                    <div class="flex justify-center w-10/12 h-auto">
-                        <ul class="flex flex-wrap justify-center w-full gap-1">
-                            @foreach (var themeGenre in Model.IgdbDetails.Platforms)
-                            {
-                                <li class="w-auto text-gray-300 border text-center rounded-full bg-slate-900 px-2">
-                                    <p class="text-xl md:text-base">@themeGenre</p>
-                                </li>
-                            }
-                        </ul>
+                }
+                @if (!string.IsNullOrEmpty(Model.IgdbDetails.GameID))
+                {
+                    <div id="others-container" class="flex flex-col justify-center items-center w-full h-auto">
+                        <h3
+                            class="flex justify-center items-center w-3/4 md:w-1/2 h-14 md:h-10 text-center text-white text-3xl md:text-xl px-2 border-b-2 md:border-b mb-4">
+                            Platforms</h3>
+                        <div class="flex justify-center w-10/12 h-auto">
+                            <ul class="flex flex-wrap justify-center w-full gap-1">
+                                @foreach (var themeGenre in Model.IgdbDetails.Platforms)
+                                {
+                                    <li class="w-auto text-gray-300 border text-center rounded-full bg-slate-900 px-2">
+                                        <p class="text-xl md:text-base">@themeGenre</p>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
                     </div>
-                </div>
+                }
                 <div id="others-container" class="flex flex-col justify-center items-center w-full h-auto">
                     <h3
                         class="flex justify-center items-center w-3/4 md:w-1/2 h-14 md:h-10 text-center text-white text-3xl md:text-xl px-2 border-b-2 md:border-b mb-4">
@@ -146,48 +152,77 @@
             </div>
         </div>
     </div>
-    <div id="game-details"
-        class="flex flex-col justify-start items-center w-full md:w-3/4 h-auto md:h-full md:max-h-screen md:gap-4 bg-gradient-to-b from-slate-950 to-purple-800">
-        <div id="navigation-div" class="flex flex-col justify-start items-center w-full h-auto">
-            <div
-                class="flex justify-center md:justify-start items-start w-full h-12 text-white text-center text-2xl text-center font-bold gap-8 md:pl-4 bg-white/20">
-                <button class="text-center border-b border-purple-300 text-purple-300 px-2">
-                    About
-                </button>
-                <button class="text-center border-t-0 border rounded-b-md px-2 bg-slate-900 shadow-md shadow-black">
-                    Media
-                </button>
-                <button class="text-center border-t-0 border rounded-b-md px-2 bg-slate-900 shadow-md shadow-black">
-                    More
-                </button>
+    @if (!string.IsNullOrEmpty(Model.IgdbDetails.GameID))
+    {
+        <div id="game-details"
+            class="flex flex-col justify-start items-center w-full md:w-3/4 h-auto md:h-full md:max-h-screen md:gap-4 bg-gradient-to-b from-slate-950 to-purple-800">
+            <div id="navigation-div" class="flex flex-col justify-start items-center w-full h-auto">
+                <div
+                    class="flex justify-center md:justify-start items-start w-full h-12 text-white text-center text-2xl text-center font-bold gap-8 md:pl-4 bg-white/20">
+                    <button class="text-center border-b border-purple-300 text-purple-300 px-2">
+                        About
+                    </button>
+                    <button class="text-center border-t-0 border rounded-b-md px-2 bg-slate-900 shadow-md shadow-black">
+                        Media
+                    </button>
+                    <button class="text-center border-t-0 border rounded-b-md px-2 bg-slate-900 shadow-md shadow-black">
+                        More
+                    </button>
+                </div>
+            </div>
+            <div id="about-container"
+                class="flex flex-col justify-start items-center w-11/12 h-auto md:h-full md:overflow-y-auto py-2 gap-4">
+                @if (!string.IsNullOrEmpty(Model.IgdbDetails.Summary))
+                {
+                    <div class="w-full h-auto bg-purple-800">
+                        <h3 class="w-auto text-2xl text-white text-center font-bold">Summary</h3>
+                        <p
+                            class="w-full h-auto text-white text-center text-md  lg:text-xs xl:text-lg 2xl:text-base text-center text-md">
+                            @Model.IgdbDetails.Summary
+                        </p>
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(Model.IgdbDetails.StoryLine))
+                {
+                    @if (Model.IgdbDetails.StoryLine.Length <= 300)
+                    {
+                        <div class="w-full h-auto max-h-32 bg-purple-900 overflow-hidden">
+                            <h3 class="w-full text-2xl text-white text-center font-bold">Story</h3>
+                            <p
+                                class="w-full h-auto text-white text-center text-md lg:text-xs xl:text-lg 2xl:text-base text-center text-md line-clamp-3">
+                                @Model.IgdbDetails.StoryLine
+                            </p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="relative w-full h-auto max-h-32 bg-purple-900">
+                            <h3 class="w-full text-2xl text-white text-center font-bold">Story</h3>
+                            <p
+                                class="w-full h-auto text-white text-center text-md  lg:text-xs xl:text-lg 2xl:text-base text-center text-md line-clamp-3">
+                                @Model.IgdbDetails.StoryLine
+                            </p>
+                            <button class="absolute -bottom-6 right-0 text-blue-500 border">More</button>
+                        </div>
+                    }
+                }
             </div>
         </div>
-        <div id="about-container"
-            class="flex flex-col justify-start items-center w-11/12 h-auto md:h-full md:overflow-y-auto py-2 gap-4">
-            @if (!string.IsNullOrEmpty(Model.IgdbDetails.Summary))
-            {
-                <div class="w-full h-auto bg-purple-800">
-                    <h3 class="w-auto text-2xl text-white text-center font-bold">Summary</h3>
-                    <p
-                        class="w-full h-auto text-white text-center text-md  lg:text-xs xl:text-lg 2xl:text-base text-center text-md">
-                        @Model.IgdbDetails.Summary
-                    </p>
-                </div>
-            }
-            @if (!string.IsNullOrEmpty(Model.IgdbDetails.StoryLine))
-            {
-                <div class="w-full h-auto bg-purple-900">
-                    <h3 class="w-full text-2xl text-white text-center font-bold">Story</h3>
-                    <p
-                        class="w-full h-auto text-white text-center text-md  lg:text-xs xl:text-lg 2xl:text-base text-center text-md">
-                        @Model.IgdbDetails.StoryLine
-                    </p>
-                </div>
-            }
-        </div>
-    </div>
+    }
+    else
+    {
+        <p>@TempData["Found"]</p>
+    }
 </section>
 
 @section Scripts {
     <script src="/js/game.js"></script>
 }
+
+@* Date 5pm thursday 19 
+    Name: 
+
+    Pitsburg, cheesecake factory 
+    3300 Monroe Avenue...
+    Get of the express way 
+ *@
