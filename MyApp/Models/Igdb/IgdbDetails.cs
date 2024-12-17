@@ -13,8 +13,6 @@
 
 
 // IndexGameVM.IgdbDetails.Videos   "Aqui saco los videos "
-using Microsoft.AspNetCore.SignalR;
-
 namespace MyApp.Models.Igdb
 {
 
@@ -30,7 +28,5 @@ namespace MyApp.Models.Igdb
         public List<string> Platforms { get; set; } = new List<string>(); // Names of platforms
         public List<string>? ThemesGenres { get; set; } = new List<string>();
         public List<string>? VideosLinks { get; set; } = new List<string>(); // Complete youtube Video Link EMBED "https://www.youtube.com/embed/{videoId}"
-
     }
-
 }
