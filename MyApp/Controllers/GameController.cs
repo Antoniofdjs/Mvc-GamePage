@@ -8,6 +8,7 @@ using MyApp.Models;
 using MyApp.Models.ViewModels;
 using Newtonsoft.Json.Linq;
 using OpenAI;
+using MyApp.Models.Igdb;
 
 namespace MyApp.Controllers
 {
@@ -48,15 +49,15 @@ namespace MyApp.Controllers
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _twitchTokenManager.TokenValue);
 
             // var body = $"search \"{gameTitle}\"; fields name, slug; limit 50;";
-            // var body = $"fields name, screenshots, videos, themes, genres, category, summary, storyline, slug, dlcs, rating; where slug=\"{gameTitle}\";";
+            // var body = $"fields game_modes, name; where slug=\"{gameTitle}\";";
             // var body = "fields name, id, slug; where id<=80; limit 50;";
-            var body = "fields abbreviation, id, name, platform_family; where id=23; limit 50;";
+            var body = "fields *; limit 50;";
 
             var content = new StringContent(body, Encoding.UTF8, "text/plain");
 
             // Send the POST
             // var response = await _httpClient.PostAsync("https://api.igdb.com/v4/game_videos", content);
-            var response = await _httpClient.PostAsync("https://api.igdb.com/v4/platforms", content);
+            var response = await _httpClient.PostAsync("https://api.igdb.com/v4/game_modes", content);
             if (!response.IsSuccessStatusCode)
             {
                 return NotFound();
@@ -90,8 +91,7 @@ namespace MyApp.Controllers
             var jsonGame = JObject.Parse(jsonString);
             var jsonDeals = jsonGame["deals"];
 
-            // IndexGameVM IndexGameVM = new IndexGameVM();
-            Game game = new Game();
+            Game game = new Game(); // cheapShark
             {
                 game.Title = (string)jsonGame["info"]["title"];
                 var appID = jsonGame["info"]["steamAppID"];
@@ -169,30 +169,12 @@ namespace MyApp.Controllers
             var igdbDetails = await igdbResponse.Content.ReadAsStringAsync();
             var jsonGameDetails = JObject.Parse(igdbDetails);
 
-            // Populate IgdbDetails
-            IndexGameVM.IgdbDetails.GameID = (string)jsonGameDetails["id"];
-            Console.WriteLine($"GameID populated {IndexGameVM.IgdbDetails.GameID}");
+            IndexGameVM.IgdbDetails = new IgdbGameDetails(jsonGameDetails);
 
-            IndexGameVM.IgdbDetails.GameName = (string)jsonGameDetails["name"];
-            Console.WriteLine($"GameName populated {IndexGameVM.IgdbDetails.GameName}");
-
-            IndexGameVM.IgdbDetails.SlugTitle = (string)jsonGameDetails["slug"];
-            Console.WriteLine($"slug populated {IndexGameVM.IgdbDetails.SlugTitle}");
-
-            IndexGameVM.IgdbDetails.StoryLine = (string)jsonGameDetails["storyline"];
-            Console.WriteLine($"storyline populated {IndexGameVM.IgdbDetails.StoryLine}");
-
-            IndexGameVM.IgdbDetails.Summary = (string)jsonGameDetails["summary"];
-            Console.WriteLine($"summary populated {IndexGameVM.IgdbDetails.Summary}");
-
-            IndexGameVM.IgdbDetails.RatingCount = (int)jsonGameDetails["rating"];
-            Console.WriteLine($"Rating populated {IndexGameVM.IgdbDetails.RatingCount}");
-
-            IndexGameVM.IgdbDetails.RatingLink = $"https://www.igdb.com/games/{IndexGameVM.IgdbDetails.SlugTitle}#community";
-            Console.WriteLine($"RatingLink populated {IndexGameVM.IgdbDetails.RatingLink}");
-            IndexGameVM.IgdbDetails.ThemesGenres.AddRange(GetThemeNames(jsonGameDetails["themes"].ToObject<List<int>>()));
-            IndexGameVM.IgdbDetails.ThemesGenres.AddRange(GetGenreNames(jsonGameDetails["genres"].ToObject<List<int>>()));
-            IndexGameVM.IgdbDetails.Platforms.AddRange(GetPlatformNames(jsonGameDetails["platforms"].ToObject<List<int>>()));
+            IndexGameVM.ThemesGenres.AddRange(GetThemeNames(IndexGameVM.IgdbDetails.ThemesIDs));
+            IndexGameVM.ThemesGenres.AddRange(GetGenreNames(IndexGameVM.IgdbDetails.GenresIDs));
+            IndexGameVM.Platforms.AddRange(GetPlatformNames(IndexGameVM.IgdbDetails.PlatformsIDs));
+            IndexGameVM.GameModes.AddRange(GetGameModeNames(IndexGameVM.IgdbDetails.GameModesIDs));
 
             Console.WriteLine("Found igdbDetails");
             return View(IndexGameVM);
@@ -213,6 +195,23 @@ namespace MyApp.Controllers
                     .FirstOrDefault());
             }
             return themeNames;
+        }
+
+        public List<string> GetGameModeNames(List<int> gameModesIDs)
+        {
+            Console.WriteLine("Populating GameMode Names");
+            List<string> gameModeNames = new List<string>();
+
+            foreach (var gameModeID in gameModesIDs)
+            {
+                Console.WriteLine($"Theme ID: {gameModeID}");
+                gameModeNames.Add(_localData.GameModes
+                    .Where(u => u.ID == gameModeID)
+                    .Select(u => u.Name)
+                    .FirstOrDefault());
+            }
+
+            return gameModeNames;
         }
 
         public List<string> GetGenreNames(List<int> genreIds)
