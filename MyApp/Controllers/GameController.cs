@@ -7,6 +7,7 @@ using MyApp.Services.IGDB;
 using MyApp.Models;
 using MyApp.Models.ViewModels;
 using Newtonsoft.Json.Linq;
+using OpenAI;
 
 namespace MyApp.Controllers
 {
@@ -49,7 +50,7 @@ namespace MyApp.Controllers
             // var body = $"search \"{gameTitle}\"; fields name, slug; limit 50;";
             // var body = $"fields name, screenshots, videos, themes, genres, category, summary, storyline, slug, dlcs, rating; where slug=\"{gameTitle}\";";
             // var body = "fields name, id, slug; where id<=80; limit 50;";
-            var body = "fields abbreviation, id, name, platform_family; where id=130; limit 50;";
+            var body = "fields abbreviation, id, name, platform_family; where id=23; limit 50;";
 
             var content = new StringContent(body, Encoding.UTF8, "text/plain");
 
@@ -150,23 +151,101 @@ namespace MyApp.Controllers
 
             // var body = "search \"Sid Meiers Civilization VI\"; fields name, slug; limit 50;";
             string gameTitle = game.Title; // Testing with this, static value
-            string slugTitle = gameTitle.Replace(' ', '-');
-            slugTitle = slugTitle.Replace(":", ""); // Remove colons
+            string slugTitle = gameTitle.Replace(" -", "");
+            slugTitle = slugTitle.Replace(' ', '-');
+            slugTitle = slugTitle.Replace("-(2000)", "");
+            slugTitle = slugTitle.Replace(":", "");
             slugTitle = slugTitle.Replace("'", "-");
             slugTitle = slugTitle.ToLower();
             Console.WriteLine($"My slug title is: {slugTitle}");
 
-            try
+            var igdbResponse = await _igdbAPI.GameDetails(slugTitle); // Will fecth all details and video links
+            if (!igdbResponse.IsSuccessStatusCode)
             {
-                IndexGameVM.IgdbDetails = await _igdbAPI.GameDetails(slugTitle); // Will fecth all details and video links
+                Console.WriteLine($"No results found for igdb slug {slugTitle}");
+                TempData["Found"] = "Game Details Not Found";
+                return View(IndexGameVM);
             }
-            catch (Exception ex)
+            var igdbDetails = await igdbResponse.Content.ReadAsStringAsync();
+            var jsonGameDetails = JObject.Parse(igdbDetails);
+
+            // Populate IgdbDetails
+            IndexGameVM.IgdbDetails.GameID = (string)jsonGameDetails["id"];
+            Console.WriteLine($"GameID populated {IndexGameVM.IgdbDetails.GameID}");
+
+            IndexGameVM.IgdbDetails.GameName = (string)jsonGameDetails["name"];
+            Console.WriteLine($"GameName populated {IndexGameVM.IgdbDetails.GameName}");
+
+            IndexGameVM.IgdbDetails.SlugTitle = (string)jsonGameDetails["slug"];
+            Console.WriteLine($"slug populated {IndexGameVM.IgdbDetails.SlugTitle}");
+
+            IndexGameVM.IgdbDetails.StoryLine = (string)jsonGameDetails["storyline"];
+            Console.WriteLine($"storyline populated {IndexGameVM.IgdbDetails.StoryLine}");
+
+            IndexGameVM.IgdbDetails.Summary = (string)jsonGameDetails["summary"];
+            Console.WriteLine($"summary populated {IndexGameVM.IgdbDetails.Summary}");
+
+            IndexGameVM.IgdbDetails.RatingCount = (int)jsonGameDetails["rating"];
+            Console.WriteLine($"Rating populated {IndexGameVM.IgdbDetails.RatingCount}");
+
+            IndexGameVM.IgdbDetails.RatingLink = $"https://www.igdb.com/games/{IndexGameVM.IgdbDetails.SlugTitle}#community";
+            Console.WriteLine($"RatingLink populated {IndexGameVM.IgdbDetails.RatingLink}");
+            IndexGameVM.IgdbDetails.ThemesGenres.AddRange(GetThemeNames(jsonGameDetails["themes"].ToObject<List<int>>()));
+            IndexGameVM.IgdbDetails.ThemesGenres.AddRange(GetGenreNames(jsonGameDetails["genres"].ToObject<List<int>>()));
+            IndexGameVM.IgdbDetails.Platforms.AddRange(GetPlatformNames(jsonGameDetails["platforms"].ToObject<List<int>>()));
+
+            Console.WriteLine("Found igdbDetails");
+            return View(IndexGameVM);
+        }
+
+        // Helper functions
+        public List<string> GetThemeNames(List<int> themesIds)
+        {
+            Console.WriteLine("Populating Theme Names");
+            List<string> themeNames = new List<string>();
+
+            foreach (var themeID in themesIds)
             {
-                Console.WriteLine($"An error occurred retrieving IgdbDetails: {ex.Message}");
-                //IgdbDetails will remain null
+                Console.WriteLine($"Theme ID populated: {themeID}");
+                themeNames.Add(_localData.Themes
+                    .Where(u => u.ID == themeID)
+                    .Select(u => u.Name)
+                    .FirstOrDefault());
+            }
+            return themeNames;
+        }
+
+        public List<string> GetGenreNames(List<int> genreIds)
+        {
+            Console.WriteLine("Populating Genre Names");
+            List<string> genreNames = new List<string>();
+
+            foreach (var genreID in genreIds)
+            {
+                Console.WriteLine($"Theme ID: {genreID}");
+                genreNames.Add(_localData.Genres
+                    .Where(u => u.ID == genreID)
+                    .Select(u => u.Name)
+                    .FirstOrDefault());
             }
 
-            return View(IndexGameVM); // devolver IndexGameVM
+            return genreNames;
+        }
+
+        public List<string> GetPlatformNames(List<int> platformsIDS)
+        {
+            Console.WriteLine("Populating Platform Names");
+            List<string> platformNames = new List<string>();
+
+            foreach (var platformID in platformsIDS)
+            {
+                Console.WriteLine($"Theme ID: {platformID}");
+                platformNames.Add(_localData.Platforms
+                    .Where(u => u.ID == platformID)
+                    .Select(u => u.Name)
+                    .FirstOrDefault());
+            }
+            return platformNames;
         }
     }
 }
