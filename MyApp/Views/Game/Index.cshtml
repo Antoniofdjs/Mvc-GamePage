@@ -111,7 +111,7 @@
                             Themes</h3>
                         <div class="flex justify-center w-10/12 h-auto">
                             <ul class="flex flex-wrap justify-center w-full gap-1">
-                                @foreach (var themeGenre in Model.IgdbDetails.ThemesGenres)
+                                @foreach (var themeGenre in Model.ThemesGenres)
                                 {
                                     <li class="w-auto text-gray-300 border text-center rounded-full bg-slate-900 px-2">
                                         <p class="text-xl md:text-base">@themeGenre</p>
@@ -120,30 +120,38 @@
                             </ul>
                         </div>
                     </div>
-                }
-                @if (!string.IsNullOrEmpty(Model.IgdbDetails.GameID))
-                {
                     <div id="others-container" class="flex flex-col justify-center items-center w-full h-auto">
                         <h3
                             class="flex justify-center items-center w-3/4 md:w-1/2 h-14 md:h-10 text-center text-white text-3xl md:text-xl px-2 border-b-2 md:border-b mb-4">
                             Platforms</h3>
                         <div class="flex justify-center w-10/12 h-auto">
                             <ul class="flex flex-wrap justify-center w-full gap-1">
-                                @foreach (var themeGenre in Model.IgdbDetails.Platforms)
+                                @foreach (var platform in Model.Platforms)
                                 {
                                     <li class="w-auto text-gray-300 border text-center rounded-full bg-slate-900 px-2">
-                                        <p class="text-xl md:text-base">@themeGenre</p>
+                                        <p class="text-xl md:text-base">@platform</p>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                    <div id="game-modes-container" class="flex flex-col justify-center items-center w-full h-auto">
+                        <h3
+                            class="flex justify-center items-center w-3/4 md:w-1/2 h-14 md:h-10 text-center text-white text-3xl md:text-xl px-2 border-b-2 md:border-b mb-4">
+                            Game Modes</h3>
+                        <div class="flex justify-center w-10/12 h-auto">
+                            <ul class="flex flex-wrap justify-center w-full gap-1">
+                                @foreach (var gameMode in Model.GameModes)
+                                {
+                                    <li class="w-auto text-gray-300 border text-center rounded-full bg-slate-900 px-2">
+                                        <p class="text-xl md:text-base">@gameMode</p>
                                     </li>
                                 }
                             </ul>
                         </div>
                     </div>
                 }
-                <div id="others-container" class="flex flex-col justify-center items-center w-full h-auto">
-                    <h3
-                        class="flex justify-center items-center w-3/4 md:w-1/2 h-14 md:h-10 text-center text-white text-3xl md:text-xl px-2 border-b-2 md:border-b mb-4">
-                        Modes</h3>
-                </div>
+
                 <div id="others-container" class="flex flex-col justify-center items-center w-full h-auto">
                     <h3
                         class="flex justify-center items-center w-3/4 md:w-1/2 h-14 md:h-10 text-center text-white text-3xl md:text-xl px-2 border-b-2 md:border-b mb-4">
