@@ -59,7 +59,7 @@ namespace MyApp.Services.IGDB
                 throw new InvalidOperationException("Failed to refresh token.");
             }
 
-            var body = $"fields id, name, themes, genres, platforms, category, summary, storyline, slug, rating; where slug=\"{slugTitle}\";";
+            var body = $"fields *; where slug=\"{slugTitle}\";";
             var content = new StringContent(body, Encoding.UTF8, "text/plain");
 
             // Send the POST
@@ -85,6 +85,7 @@ namespace MyApp.Services.IGDB
             List<int> platformsIds = gameJson["platforms"]?.ToObject<List<int>>() ?? new List<int>();
             List<int> themesIds = gameJson["themes"]?.ToObject<List<int>>() ?? new List<int>();
             List<int> genresIds = gameJson["genres"]?.ToObject<List<int>>() ?? new List<int>();
+            List<int> gameModesIds = gameJson["game_modes"]?.ToObject<List<int>>() ?? new List<int>();
 
             JObject result = new JObject
             {
@@ -96,7 +97,8 @@ namespace MyApp.Services.IGDB
                 ["rating"] = gameJson.Value<int?>("rating") ?? 0,
                 ["platforms"] = JArray.FromObject(platformsIds),
                 ["themes"] = JArray.FromObject(themesIds),
-                ["genres"] = JArray.FromObject(genresIds)
+                ["genres"] = JArray.FromObject(genresIds),
+                ["game_modes"] = JArray.FromObject(gameModesIds)
             };
 
             var myResponse = new HttpResponseMessage(HttpStatusCode.OK)
@@ -108,80 +110,48 @@ namespace MyApp.Services.IGDB
             return myResponse;
         }
 
-        // Fecth all game details and return the IgdbDetails Model
-        // public async Task<IgdbGameDetails> GameDetails(string slugTitle)
-        // {
-        //     bool tokenSucces = await PrepareRequestAsync();
-        //     if (!tokenSucces)
-        //     {
-        //         throw new InvalidOperationException("Failed to refresh token.");
-        //     }
 
-        //     var body = $"fields id, name, themes, genres, platforms, category, summary, storyline, slug, rating; where slug=\"{slugTitle}\";";
-        //     var content = new StringContent(body, Encoding.UTF8, "text/plain");
+        public async Task<HttpResponseMessage> GameModes(string gameID)
+        {
+            bool tokenSucces = await PrepareRequestAsync();
+            if (!tokenSucces)
+            {
+                throw new InvalidOperationException("Failed to refresh token.");
+            }
 
-        //     // Send the POST
-        //     var response = await _httpClient.PostAsync("https://api.igdb.com/v4/games", content);
-        //     if (!response.IsSuccessStatusCode)
-        //     {
-        //         throw new InvalidOperationException($"Error{response.StatusCode}with api.igdb.com/v4/games.");
-        //     }
+            var body = $"fields *; where game=\"{gameID}\";";
+            var content = new StringContent(body, Encoding.UTF8, "text/plain");
 
-        //     var responseIgdbString = await response.Content.ReadAsStringAsync();
-        //     Console.WriteLine(responseIgdbString);
-        //     var gamesJson = JArray.Parse(responseIgdbString);
-        //     if (gamesJson.Count <= 0)
-        //     {
-        //         return new IgdbGameDetails();
-        //     }
-        //     var gameJson = gamesJson[0];
+            // Send the POST
+            var response = await _httpClient.PostAsync("https://api.igdb.com/v4/multiplayer_modes", content);
+            if (!response.IsSuccessStatusCode)
+            {
+                return response;
+            }
 
-        //     IgdbGameDetails igdbDetails = new IgdbGameDetails();
+            var jsonString = await response.Content.ReadAsStringAsync();
+            var jsonMultiplayer = JObject.Parse(jsonString) ?? null;
 
-        //     igdbDetails.GameID = (string)gameJson["id"];
-        //     if (string.IsNullOrEmpty(igdbDetails.GameID))
-        //     {
-        //         return new IgdbGameDetails();
-        //     }
-        //     igdbDetails.SlugTitle = gameJson.Value<string>("slug") ?? "";
-        //     if (string.IsNullOrEmpty(igdbDetails.SlugTitle))
-        //     {
-        //         return new IgdbGameDetails();
-        //     }
-        //     igdbDetails.StoryLine = gameJson.Value<string>("storyline") ?? "";
-        //     igdbDetails.Summary = gameJson.Value<string>("summary") ?? "";
-        //     igdbDetails.RatingCount = gameJson.Value<int?>("rating") ?? 0;
-        //     igdbDetails.RatingLink = $"https://www.igdb.com/games/{igdbDetails.SlugTitle}#community";
-        //     igdbDetails.GameName = (string)gameJson["name"];
-        //     var platformsIds = gameJson["platforms"]?.ToObject<List<int>>() ?? new List<int>();
-        //     foreach (var platformId in platformsIds)
-        //     {
-        //         Console.WriteLine($"Platform id: {platformId}");
-        //         igdbDetails.Platforms.Add(_localData.Platforms.Where(u => u.ID == platformId).Select(u => u.Name).OrderByDescending(name => name).FirstOrDefault());
-        //     }
-        //     var themesIds = gameJson["themes"]?.ToObject<List<int>>() ?? new List<int>();
-        //     foreach (var themeID in themesIds)
-        //     {
-        //         Console.WriteLine($"Theme ID: {themeID}");
-        //         igdbDetails.ThemesGenres.Add(_localData.Themes
-        //             .Where(u => u.ID == themeID)
-        //             .Select(u => u.Name)
-        //             .FirstOrDefault());
-        //     }
-        //     var genresIds = gameJson["genres"]?.ToObject<List<int>>() ?? new List<int>();
-        //     foreach (var genreID in genresIds)
-        //     {
-        //         Console.WriteLine($"Genre ID: {genreID}");
-        //         igdbDetails.ThemesGenres.Add(_localData.Genres
-        //             .Where(u => u.ID == genreID)
-        //             .Select(u => u.Name)
-        //             .FirstOrDefault());
-        //     }
+            JObject multiplayerModesJObject = new JObject
+            {
+                ["campaingcoop"] = jsonMultiplayer.Value<bool>("campaigncoop"),
+                ["lancoop"] = jsonMultiplayer.Value<bool>("lancoop"),
+                ["offlinecoop"] = jsonMultiplayer.Value<bool>("offlinecoop"),
+                ["offlinemax"] = jsonMultiplayer.Value<int>("offlinemax"),
+                ["onlinecoop"] = jsonMultiplayer.Value<bool>("onlinecoop"),
+                ["onlinecoopmax"] = jsonMultiplayer.Value<int>("onlinecoopmax"),
+                ["splitscreen"] = jsonMultiplayer.Value<bool>("splitscreen"),
+                ["splitscreenonline"] = jsonMultiplayer.Value<bool>("splitscreenonline"),
+            };
 
-        //     return igdbDetails;
-        // }
+            return new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(multiplayerModesJObject.ToString(), Encoding.UTF8, "application/json")
+            };
 
-        /* Get all videos by gameID, returns the IEnumberable(like a list) of youtube links, max of 8 */
+        }
+
+        /* Get all videos by gameID, returns the of youtube links max of 8, FIX THIS need to return json and httpResponse */
         public async Task<List<string>> Videos(string gameID)
         {
 
