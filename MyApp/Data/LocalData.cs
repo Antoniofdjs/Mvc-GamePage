@@ -81,6 +81,15 @@ namespace MyApp.Data
             new Genre(36, "MOBA"),
         };
 
+        public List<GameMode> GameModes = new List<GameMode>(){
+            new GameMode(1, "Single Player", "single-player"),
+            new GameMode(2, "Multiplayer", "multiplayer"),
+            new GameMode(3, "Co-op", "co-operative"),
+            new GameMode(4, "Split screen", "split-screen"),
+            new GameMode(5, "MMO", "massively-multiplayer-online-mmo"),
+            new GameMode(6, "Battle Royale", "battle-royale"),
+        };
+
         public List<Platform> Platforms = new List<Platform>{ // Id and abrbreviation
             //Pc and Vr and mobile
             new Platform(3,"Linux"),
