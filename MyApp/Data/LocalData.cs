@@ -86,6 +86,7 @@ namespace MyApp.Data
             new Platform(3,"Linux"),
             new Platform(6,"Pc(Windows)"),
             new Platform(14,"Mac"),
+            new Platform(34,"Android"),
             new Platform(39,"iOS"),
             new Platform(163,"Steam VR"),
             new Platform(387,"Oculus Go"),
@@ -122,6 +123,8 @@ namespace MyApp.Data
             new Platform(24,"GB(Advanced)"),
             new Platform(41,"Wii U"),
             new Platform(130,"Switch"),
+
+            new Platform(23,"Dreamcast"),
 
         };
     }
