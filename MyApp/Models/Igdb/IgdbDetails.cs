@@ -13,6 +13,8 @@
 
 
 // IndexGameVM.IgdbDetails.Videos   "Aqui saco los videos "
+using Newtonsoft.Json.Linq;
+
 namespace MyApp.Models.Igdb
 {
 
@@ -25,8 +27,35 @@ namespace MyApp.Models.Igdb
         public string Summary { get; set; } = "";
         public int RatingCount { get; set; } = 0;
         public string RatingLink { get; set; } = ""; // Complete igdb review link community #
-        public List<string> Platforms { get; set; } = new List<string>(); // Names of platforms
-        public List<string>? ThemesGenres { get; set; } = new List<string>();
-        public List<string>? VideosLinks { get; set; } = new List<string>(); // Complete youtube Video Link EMBED "https://www.youtube.com/embed/{videoId}"
+        public List<int> ThemesIDs { get; set; }
+        public List<int> GenresIDs { get; set; }
+        public List<int> PlatformsIDs { get; set; }
+        public List<int> GameModesIDs { get; set; }
+        public IgdbMultiplayerMode MultiplayerMode { get; set; } = null;
+
+        public IgdbGameDetails() { }
+
+        public IgdbGameDetails(JObject gameDetails)
+        {
+            if (!gameDetails.ContainsKey("id") || !gameDetails.ContainsKey("name"))
+            {
+                Console.WriteLine("Error: Missing required keys 'id' or 'name' in the JSON data.");
+                return;
+            }
+
+            GameID = (string)gameDetails["id"] ?? "";
+            GameName = (string)gameDetails["name"] ?? "";
+            SlugTitle = (string)gameDetails["slug"] ?? "";
+            StoryLine = (string)gameDetails["storyline"] ?? "";
+            Summary = (string)gameDetails["summary"] ?? "";
+            RatingCount = (int?)gameDetails["rating"] ?? 0;
+            RatingLink = $"https://www.igdb.com/games/{SlugTitle}#community";
+
+            ThemesIDs = gameDetails["themes"]?.ToObject<List<int>>() ?? new List<int>();
+            GenresIDs = gameDetails["genres"]?.ToObject<List<int>>() ?? new List<int>();
+            PlatformsIDs = gameDetails["platforms"]?.ToObject<List<int>>() ?? new List<int>();
+            GameModesIDs = gameDetails["game_modes"]?.ToObject<List<int>>() ?? new List<int>();
+
+        }
     }
 }
