@@ -98,6 +98,7 @@ namespace MyApp.Data
             new Platform(34,"Android"),
             new Platform(39,"iOS"),
             new Platform(163,"Steam VR"),
+            new Platform(170,"Stadia"),
             new Platform(387,"Oculus Go"),
             new Platform(384,"Oculus Quest"),
             new Platform(385,"Oculus Rift"),
