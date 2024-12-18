@@ -51,13 +51,13 @@ namespace MyApp.Controllers
             // var body = $"search \"{gameTitle}\"; fields name, slug; limit 50;";
             // var body = $"fields game_modes, name; where slug=\"{gameTitle}\";";
             // var body = "fields name, id, slug; where id<=80; limit 50;";
-            var body = "fields *; limit 50;";
+            var body = $"fields *; where id=170; limit 50;";
 
             var content = new StringContent(body, Encoding.UTF8, "text/plain");
 
             // Send the POST
             // var response = await _httpClient.PostAsync("https://api.igdb.com/v4/game_videos", content);
-            var response = await _httpClient.PostAsync("https://api.igdb.com/v4/game_modes", content);
+            var response = await _httpClient.PostAsync("https://api.igdb.com/v4/platforms", content);
             if (!response.IsSuccessStatusCode)
             {
                 return NotFound();
@@ -152,6 +152,7 @@ namespace MyApp.Controllers
             // var body = "search \"Sid Meiers Civilization VI\"; fields name, slug; limit 50;";
             string gameTitle = game.Title; // Testing with this, static value
             string slugTitle = gameTitle.Replace(" -", "");
+            slugTitle = slugTitle.Replace(".", "");
             slugTitle = slugTitle.Replace(' ', '-');
             slugTitle = slugTitle.Replace("-(2000)", "");
             slugTitle = slugTitle.Replace(":", "");
@@ -169,6 +170,7 @@ namespace MyApp.Controllers
             var igdbDetails = await igdbResponse.Content.ReadAsStringAsync();
             var jsonGameDetails = JObject.Parse(igdbDetails);
 
+
             IndexGameVM.IgdbDetails = new IgdbGameDetails(jsonGameDetails);
 
             IndexGameVM.ThemesGenres.AddRange(GetThemeNames(IndexGameVM.IgdbDetails.ThemesIDs));
@@ -176,11 +178,47 @@ namespace MyApp.Controllers
             IndexGameVM.Platforms.AddRange(GetPlatformNames(IndexGameVM.IgdbDetails.PlatformsIDs));
             IndexGameVM.GameModes.AddRange(GetGameModeNames(IndexGameVM.IgdbDetails.GameModesIDs));
 
+            // Fetch multiplayer modes
+            var igdbMultiplayerResponse = await _igdbAPI.MultiPlayerModes(IndexGameVM.IgdbDetails.GameID);
+            if (!igdbMultiplayerResponse.IsSuccessStatusCode)
+            {
+                Console.WriteLine($"Error awaiting /multiplayer_modes {igdbMultiplayerResponse.StatusCode}");
+                return View(IndexGameVM);
+            }
+            var jsonMultiplayerString = await igdbMultiplayerResponse.Content.ReadAsStringAsync();
+            var jsonMultiplayerModes = JObject.Parse(jsonMultiplayerString);
+
+            IgdbMultiplayerMode igdbMultiplayerModes = new IgdbMultiplayerMode(jsonMultiplayerModes);
+            IndexGameVM.MultiPlayerModes.AddRange(GetMultiplayerModes(igdbMultiplayerModes));
+
             Console.WriteLine("Found igdbDetails");
             return View(IndexGameVM);
         }
 
         // Helper functions
+        public List<string> GetMultiplayerModes(IgdbMultiplayerMode multiplayerModes)
+        {
+            Console.WriteLine("Preparing multiplayer modes list");
+            var modes = new List<(bool condition, string description)>
+            {
+                (multiplayerModes.OnlineMax > 0, $"Online Max: {multiplayerModes.OnlineMax}"),
+                (multiplayerModes.OnlineCoop, $"Online Co-op Max: {multiplayerModes.OnlinecoopMax}"),
+                (multiplayerModes.SplitsScreenOnline, "Split Screen Online"),
+                (multiplayerModes.SplitScreen, "Split Screen"),
+                (multiplayerModes.CampaingCoop, "Campaign Co-op"),
+                (multiplayerModes.LanCoop, "LAN Co-op"),
+                (multiplayerModes.OfflineCoop, $"Offline Co-op Max: {multiplayerModes.OfflineCoopmax}"),
+                (multiplayerModes.OfflineMax > 0, $"Offline Max: {multiplayerModes.OfflineMax}"),
+            };
+
+            return modes
+                .Where(mode => mode.condition)
+                .OrderByDescending(mode => mode.description)
+                .Select(mode => mode.description)
+                .ToList();
+        }
+
+
         public List<string> GetThemeNames(List<int> themesIds)
         {
             Console.WriteLine("Populating Theme Names");
@@ -204,7 +242,7 @@ namespace MyApp.Controllers
 
             foreach (var gameModeID in gameModesIDs)
             {
-                Console.WriteLine($"Theme ID: {gameModeID}");
+                Console.WriteLine($"GameMode ID: {gameModeID}");
                 gameModeNames.Add(_localData.GameModes
                     .Where(u => u.ID == gameModeID)
                     .Select(u => u.Name)
@@ -221,7 +259,7 @@ namespace MyApp.Controllers
 
             foreach (var genreID in genreIds)
             {
-                Console.WriteLine($"Theme ID: {genreID}");
+                Console.WriteLine($"Genre ID: {genreID}");
                 genreNames.Add(_localData.Genres
                     .Where(u => u.ID == genreID)
                     .Select(u => u.Name)
@@ -238,7 +276,7 @@ namespace MyApp.Controllers
 
             foreach (var platformID in platformsIDS)
             {
-                Console.WriteLine($"Theme ID: {platformID}");
+                Console.WriteLine($"Platform ID: {platformID}");
                 platformNames.Add(_localData.Platforms
                     .Where(u => u.ID == platformID)
                     .Select(u => u.Name)
