@@ -111,7 +111,7 @@ namespace MyApp.Services.IGDB
         }
 
 
-        public async Task<HttpResponseMessage> GameModes(string gameID)
+        public async Task<HttpResponseMessage> MultiPlayerModes(string gameID)
         {
             bool tokenSucces = await PrepareRequestAsync();
             if (!tokenSucces)
@@ -119,19 +119,28 @@ namespace MyApp.Services.IGDB
                 throw new InvalidOperationException("Failed to refresh token.");
             }
 
-            var body = $"fields *; where game=\"{gameID}\";";
+            var body = $"fields *; where id={gameID};";
             var content = new StringContent(body, Encoding.UTF8, "text/plain");
 
             // Send the POST
+            Console.WriteLine($"Sending post to /multiplayer_modes for game id {gameID}");
             var response = await _httpClient.PostAsync("https://api.igdb.com/v4/multiplayer_modes", content);
             if (!response.IsSuccessStatusCode)
             {
                 return response;
             }
-
+            Console.WriteLine($"Succes, response received from /multiplayer_modes");
             var jsonString = await response.Content.ReadAsStringAsync();
-            var jsonMultiplayer = JObject.Parse(jsonString) ?? null;
+            var jsonMultiplayers = JArray.Parse(jsonString) ?? null;
+            if (jsonMultiplayers.Count <= 0)
+            {
+                return new HttpResponseMessage(HttpStatusCode.NotFound)
+                {
+                    Content = new StringContent("{\"Message\": \"Error\"}", Encoding.UTF8, "application/json")
+                };
+            }
 
+            var jsonMultiplayer = jsonMultiplayers[0];
             JObject multiplayerModesJObject = new JObject
             {
                 ["campaingcoop"] = jsonMultiplayer.Value<bool>("campaigncoop"),
