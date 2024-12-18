@@ -150,13 +150,29 @@
                             </ul>
                         </div>
                     </div>
+                    @if (@Model.MultiPlayerModes.Count > 0)
+                    {
+                        <div id="multiplayer-container" class="flex flex-col justify-center items-center w-full h-auto">
+                            <h3
+                                class="flex justify-center items-center w-3/4 md:w-1/2 h-14 md:h-10 text-center text-white text-3xl md:text-xl px-2 border-b-2 md:border-b mb-4">
+                                Multiplayer</h3>
+                            <div class="flex justify-center w-10/12 h-auto">
+                                <ul
+                                    class="flex flex-row flex-wrap -bottom-6 justify-center items-center w-3/4 md:w-11/12 h-auto overflow-auto pt-2 md:pt-0 gap-1 rounded-lg">
+                                    @foreach (var mode in Model.MultiPlayerModes)
+                                    {
+                                        <li
+                                            class="w-auto flex flex-row text-gray-300 text-center border rounded-full bg-slate-900 px-2">
+                                            <p class="w-full text-center text-xl md:text-base">
+                                                @mode
+                                            </p>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    }
                 }
-
-                <div id="others-container" class="flex flex-col justify-center items-center w-full h-auto">
-                    <h3
-                        class="flex justify-center items-center w-3/4 md:w-1/2 h-14 md:h-10 text-center text-white text-3xl md:text-xl px-2 border-b-2 md:border-b mb-4">
-                        Other</h3>
-                </div>
             </div>
         </div>
     </div>
