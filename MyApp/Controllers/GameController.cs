@@ -76,6 +76,7 @@ namespace MyApp.Controllers
             return Ok(responseString);
         }
 
+
         public async Task<IActionResult> Index(int gameID, string searchTitle, string returnTo = "Home")
         {
             ViewBag.returnTo = returnTo;
@@ -89,114 +90,219 @@ namespace MyApp.Controllers
 
             var jsonString = await response.Content.ReadAsStringAsync();
             var jsonGame = JObject.Parse(jsonString);
-            var jsonDeals = jsonGame["deals"];
 
-            Game game = new Game(); // cheapShark
+            IndexGameVM indexGameVM = new IndexGameVM();
+
+            indexGameVM.Game = new Game2((JObject)jsonGame["info"]);
+            foreach (var jsonDeal in (JArray)jsonGame["deals"])
             {
-                game.Title = (string)jsonGame["info"]["title"];
-                var appID = jsonGame["info"]["steamAppID"];
-                if (appID != null && appID.Type != JTokenType.Null)
-                {
-                    game.SteamAppID = (int)appID;
-                }
-                game.Thumb = (string)jsonGame["info"]["thumb"];
-                game.Deals = new List<Deal>();
-                game.Review = new Review();
-
-                foreach (var jsondeal in jsonDeals)
-                {
-                    int storeID = (int)jsondeal["storeID"];
-                    var store = _localData.Stores.FirstOrDefault(u => u.Id == storeID);
-                    string storeName = store.Name;
-
-                    var deal = new Deal
-                    {
-                        StoreID = storeID,
-                        StoreName = storeName,
-                        DealID = (string)jsondeal["dealID"],
-                        SalePrice = (double)jsondeal["price"],
-                        NormalPrice = (double)jsondeal["retailPrice"],
-                        Savings = (double)jsondeal["savings"]
-                    };
-                    game.Deals.Add(deal);
-                }
-
+                Deal deal = new Deal((JObject)jsonDeal);
+                deal.StoreName = _localData.Stores.Where(u => u.Id == deal.StoreID).Select(u => u.Name).FirstOrDefault();
+                indexGameVM.Deals.Add(deal); // oficial deal for the view
             }
-            // Populate ViewModel
-            IndexGameVM IndexGameVM = new IndexGameVM();
-            IndexGameVM.Game = game;
 
             // Retrieve metacritic and steam ratings from cheapShark
-            string dealID = game.Deals[0].DealID;
+            string dealID = indexGameVM.Deals[0].DealID;
             var responseDealSearch = await _httpClient.GetAsync($"https://www.cheapshark.com/api/1.0/deals?id={dealID}");
             if (responseDealSearch.IsSuccessStatusCode)
             {
+                Review2 reviewMetaCritic = new Review2();
+
                 var jsonStringDealSearch = await responseDealSearch.Content.ReadAsStringAsync();
                 var jsonDealSearch = JObject.Parse(jsonStringDealSearch);
 
-                game.Review.MetacriticScore = (int)jsonDealSearch["gameInfo"]["metacriticScore"];
+                reviewMetaCritic.Name = "MetaCritic";
+                reviewMetaCritic.RatingScore = (int)jsonDealSearch["gameInfo"]["metacriticScore"];
                 var linkMetaCritic = (string)jsonDealSearch["gameInfo"]["metacriticLink"];
-                game.Review.MetacriticLink = $"https://www.metacritic.com{linkMetaCritic}";
+                reviewMetaCritic.RatingLink = $"https://www.metacritic.com{linkMetaCritic}";
 
-                if (game.SteamAppID != 0)
+                if (reviewMetaCritic.RatingScore > 0)
                 {
-                    game.Review.SteamRating = (int)jsonDealSearch["gameInfo"]["steamRatingPercent"];
-                    game.Review.SteamLink = $"https://store.steampowered.com/app/{game.SteamAppID}/#app_reviews_hash";
+                    indexGameVM.Reviews.Add(reviewMetaCritic);
+                }
+
+                if (indexGameVM.Game.SteamAppID != 0)
+                {
+                    Review2 reviewSteam = new Review2();
+                    reviewSteam.Name = "Steam";
+                    reviewSteam.RatingScore = (int)jsonDealSearch["gameInfo"]["steamRatingPercent"];
+                    var steamAppID = indexGameVM.Game.SteamAppID;
+                    reviewSteam.RatingLink = $"https://store.steampowered.com/app/{steamAppID}/#app_reviews_hash";
+                    indexGameVM.Reviews.Add(reviewSteam);
                 }
             }
 
-            //Get IgdbDetails -------------------------------------------------------------------------------------------------------------
-            string clientId = Environment.GetEnvironmentVariable("CLIENT_ID");
-            string clientSecret = Environment.GetEnvironmentVariable("CLIENT_SECRET");
+            // Fetch igdb details
+            string slugTitle = SanatizeTitleSlug(indexGameVM.Game.Title);
+            Console.WriteLine($"My slug title is: {slugTitle}");
 
-            // var body = "search \"Sid Meiers Civilization VI\"; fields name, slug; limit 50;";
-            string gameTitle = game.Title; // Testing with this, static value
+            var igdbResponse = await _igdbAPI.GameDetails(slugTitle);
+            if (!igdbResponse.IsSuccessStatusCode)
+            {
+                Console.WriteLine($"No results found for igdb slug {slugTitle}");
+                TempData["Found"] = "Game Details Not Found";
+                return View(indexGameVM);
+            }
+            var igdbDetails = await igdbResponse.Content.ReadAsStringAsync();
+            var jsonGameDetails = JObject.Parse(igdbDetails);
+
+            // Prepare ViewModel IgdbDetails and set review for igdb
+            indexGameVM.IgdbDetails = new IgdbGameDetails(jsonGameDetails);
+            indexGameVM.ThemesGenres.AddRange(GetThemeNames(indexGameVM.IgdbDetails.ThemesIDs));
+            indexGameVM.ThemesGenres.AddRange(GetGenreNames(indexGameVM.IgdbDetails.GenresIDs));
+            indexGameVM.Platforms.AddRange(GetPlatformNames(indexGameVM.IgdbDetails.PlatformsIDs));
+            indexGameVM.GameModes.AddRange(GetGameModeNames(indexGameVM.IgdbDetails.GameModesIDs));
+            if (indexGameVM.IgdbDetails.RatingCount > 0)
+            {
+                Review2 igdbReview = new Review2()
+                {
+
+                    RatingScore = indexGameVM.IgdbDetails.RatingCount,
+                    RatingLink = indexGameVM.IgdbDetails.RatingLink,
+                    Name = "IGDB",
+
+                };
+                indexGameVM.Reviews.Add(igdbReview);
+            }
+
+            // Fetch igdb multiplayer modes
+            var igdbMultiplayerResponse = await _igdbAPI.MultiPlayerModes(indexGameVM.IgdbDetails.GameID);
+            if (!igdbMultiplayerResponse.IsSuccessStatusCode)
+            {
+                Console.WriteLine($"Error awaiting /multiplayer_modes {igdbMultiplayerResponse.StatusCode}");
+                return View(indexGameVM);
+            }
+            var jsonMultiplayerString = await igdbMultiplayerResponse.Content.ReadAsStringAsync();
+            var jsonMultiplayerModes = JObject.Parse(jsonMultiplayerString);
+            IgdbMultiplayerMode igdbMultiplayerModes = new IgdbMultiplayerMode(jsonMultiplayerModes);
+            indexGameVM.MultiPlayerModes.AddRange(GetMultiplayerModes(igdbMultiplayerModes));
+
+            Console.WriteLine("Found igdbDetails");
+            return View(indexGameVM);
+        }
+
+
+        // public async Task<IActionResult> Index(int gameID, string searchTitle, string returnTo = "Home")
+        // {
+        //     ViewBag.returnTo = returnTo;
+        //     ViewBag.searchTitle = searchTitle;
+
+        //     var response = await _httpClient.GetAsync($"https://www.cheapshark.com/api/1.0/games?id={gameID}");
+        //     if (!response.IsSuccessStatusCode)
+        //     {
+        //         return NotFound();
+        //     }
+
+        //     var jsonString = await response.Content.ReadAsStringAsync();
+        //     var jsonGame = JObject.Parse(jsonString);
+        //     var jsonDeals = jsonGame["deals"];
+
+        //     Game game = new Game(); // cheapShark
+        //     {
+        //         game.Title = (string)jsonGame["info"]["title"];
+        //         var appID = jsonGame["info"]["steamAppID"];
+        //         if (appID != null && appID.Type != JTokenType.Null)
+        //         {
+        //             game.SteamAppID = (int)appID;
+        //         }
+        //         game.Thumb = (string)jsonGame["info"]["thumb"];
+        //         game.Deals = new List<MainDeal>();
+        //         game.Review = new Review();
+
+        //         foreach (var jsondeal in jsonDeals)
+        //         {
+        //             int storeID = (int)jsondeal["storeID"];
+        //             var store = _localData.Stores.FirstOrDefault(u => u.Id == storeID);
+        //             string storeName = store.Name;
+
+        //             var deal = new MainDeal
+        //             {
+        //                 StoreID = storeID,
+        //                 StoreName = storeName,
+        //                 DealID = (string)jsondeal["dealID"],
+        //                 SalePrice = (double)jsondeal["price"],
+        //                 NormalPrice = (double)jsondeal["retailPrice"],
+        //                 Savings = (double)jsondeal["savings"]
+        //             };
+        //             game.Deals.Add(deal);
+        //         }
+
+        //     }
+        //     // Populate ViewModel
+        //     IndexGameVM IndexGameVM = new IndexGameVM();
+        //     IndexGameVM.Game = game;
+
+        //     // Retrieve metacritic and steam ratings from cheapShark
+        //     string dealID = game.Deals[0].DealID;
+        //     var responseDealSearch = await _httpClient.GetAsync($"https://www.cheapshark.com/api/1.0/deals?id={dealID}");
+        //     if (responseDealSearch.IsSuccessStatusCode)
+        //     {
+        //         var jsonStringDealSearch = await responseDealSearch.Content.ReadAsStringAsync();
+        //         var jsonDealSearch = JObject.Parse(jsonStringDealSearch);
+
+        //         game.Review.MetacriticScore = (int)jsonDealSearch["gameInfo"]["metacriticScore"];
+        //         var linkMetaCritic = (string)jsonDealSearch["gameInfo"]["metacriticLink"];
+        //         game.Review.MetacriticLink = $"https://www.metacritic.com{linkMetaCritic}";
+
+        //         if (game.SteamAppID != 0)
+        //         {
+        //             game.Review.SteamRating = (int)jsonDealSearch["gameInfo"]["steamRatingPercent"];
+        //             game.Review.SteamLink = $"https://store.steampowered.com/app/{game.SteamAppID}/#app_reviews_hash";
+        //         }
+        //     }
+
+        //     // Fetch igdb details
+        //     string slugTitle = SanatizeTitleSlug(game.Title);
+        //     Console.WriteLine($"My slug title is: {slugTitle}");
+
+        //     var igdbResponse = await _igdbAPI.GameDetails(slugTitle);
+        //     if (!igdbResponse.IsSuccessStatusCode)
+        //     {
+        //         Console.WriteLine($"No results found for igdb slug {slugTitle}");
+        //         TempData["Found"] = "Game Details Not Found";
+        //         return View(IndexGameVM);
+        //     }
+        //     var igdbDetails = await igdbResponse.Content.ReadAsStringAsync();
+        //     var jsonGameDetails = JObject.Parse(igdbDetails);
+
+        //     // Prepare ViewModel IgdbDetails
+        //     IndexGameVM.IgdbDetails = new IgdbGameDetails(jsonGameDetails);
+        //     IndexGameVM.ThemesGenres.AddRange(GetThemeNames(IndexGameVM.IgdbDetails.ThemesIDs));
+        //     IndexGameVM.ThemesGenres.AddRange(GetGenreNames(IndexGameVM.IgdbDetails.GenresIDs));
+        //     IndexGameVM.Platforms.AddRange(GetPlatformNames(IndexGameVM.IgdbDetails.PlatformsIDs));
+        //     IndexGameVM.GameModes.AddRange(GetGameModeNames(IndexGameVM.IgdbDetails.GameModesIDs));
+
+        //     // Fetch igdb multiplayer modes
+        //     var igdbMultiplayerResponse = await _igdbAPI.MultiPlayerModes(IndexGameVM.IgdbDetails.GameID);
+        //     if (!igdbMultiplayerResponse.IsSuccessStatusCode)
+        //     {
+        //         Console.WriteLine($"Error awaiting /multiplayer_modes {igdbMultiplayerResponse.StatusCode}");
+        //         return View(IndexGameVM);
+        //     }
+        //     var jsonMultiplayerString = await igdbMultiplayerResponse.Content.ReadAsStringAsync();
+        //     var jsonMultiplayerModes = JObject.Parse(jsonMultiplayerString);
+        //     IgdbMultiplayerMode igdbMultiplayerModes = new IgdbMultiplayerMode(jsonMultiplayerModes);
+        //     IndexGameVM.MultiPlayerModes.AddRange(GetMultiplayerModes(igdbMultiplayerModes));
+
+        //     Console.WriteLine("Found igdbDetails");
+        //     return View(IndexGameVM);
+        // }
+
+        // HELPER FUNCTIONS ---------------------------------------------------------------------------------
+        private string SanatizeTitleSlug(string gameTitle)
+        {
+
             string slugTitle = gameTitle.Replace(" -", "");
+            slugTitle = slugTitle.ToLower();
             slugTitle = slugTitle.Replace(".", "");
             slugTitle = slugTitle.Replace(' ', '-');
             slugTitle = slugTitle.Replace("-(2000)", "");
             slugTitle = slugTitle.Replace(":", "");
             slugTitle = slugTitle.Replace("'", "-");
-            slugTitle = slugTitle.ToLower();
-            Console.WriteLine($"My slug title is: {slugTitle}");
-
-            var igdbResponse = await _igdbAPI.GameDetails(slugTitle); // Will fecth all details and video links
-            if (!igdbResponse.IsSuccessStatusCode)
-            {
-                Console.WriteLine($"No results found for igdb slug {slugTitle}");
-                TempData["Found"] = "Game Details Not Found";
-                return View(IndexGameVM);
-            }
-            var igdbDetails = await igdbResponse.Content.ReadAsStringAsync();
-            var jsonGameDetails = JObject.Parse(igdbDetails);
-
-
-            IndexGameVM.IgdbDetails = new IgdbGameDetails(jsonGameDetails);
-
-            IndexGameVM.ThemesGenres.AddRange(GetThemeNames(IndexGameVM.IgdbDetails.ThemesIDs));
-            IndexGameVM.ThemesGenres.AddRange(GetGenreNames(IndexGameVM.IgdbDetails.GenresIDs));
-            IndexGameVM.Platforms.AddRange(GetPlatformNames(IndexGameVM.IgdbDetails.PlatformsIDs));
-            IndexGameVM.GameModes.AddRange(GetGameModeNames(IndexGameVM.IgdbDetails.GameModesIDs));
-
-            // Fetch multiplayer modes
-            var igdbMultiplayerResponse = await _igdbAPI.MultiPlayerModes(IndexGameVM.IgdbDetails.GameID);
-            if (!igdbMultiplayerResponse.IsSuccessStatusCode)
-            {
-                Console.WriteLine($"Error awaiting /multiplayer_modes {igdbMultiplayerResponse.StatusCode}");
-                return View(IndexGameVM);
-            }
-            var jsonMultiplayerString = await igdbMultiplayerResponse.Content.ReadAsStringAsync();
-            var jsonMultiplayerModes = JObject.Parse(jsonMultiplayerString);
-
-            IgdbMultiplayerMode igdbMultiplayerModes = new IgdbMultiplayerMode(jsonMultiplayerModes);
-            IndexGameVM.MultiPlayerModes.AddRange(GetMultiplayerModes(igdbMultiplayerModes));
-
-            Console.WriteLine("Found igdbDetails");
-            return View(IndexGameVM);
+            return slugTitle;
         }
 
-        // Helper functions
-        public List<string> GetMultiplayerModes(IgdbMultiplayerMode multiplayerModes)
+        private List<string> GetMultiplayerModes(IgdbMultiplayerMode multiplayerModes)
         {
             Console.WriteLine("Preparing multiplayer modes list");
             var modes = new List<(bool condition, string description)>
@@ -219,7 +325,7 @@ namespace MyApp.Controllers
         }
 
 
-        public List<string> GetThemeNames(List<int> themesIds)
+        private List<string> GetThemeNames(List<int> themesIds)
         {
             Console.WriteLine("Populating Theme Names");
             List<string> themeNames = new List<string>();
@@ -235,7 +341,7 @@ namespace MyApp.Controllers
             return themeNames;
         }
 
-        public List<string> GetGameModeNames(List<int> gameModesIDs)
+        private List<string> GetGameModeNames(List<int> gameModesIDs)
         {
             Console.WriteLine("Populating GameMode Names");
             List<string> gameModeNames = new List<string>();
@@ -252,7 +358,7 @@ namespace MyApp.Controllers
             return gameModeNames;
         }
 
-        public List<string> GetGenreNames(List<int> genreIds)
+        private List<string> GetGenreNames(List<int> genreIds)
         {
             Console.WriteLine("Populating Genre Names");
             List<string> genreNames = new List<string>();
@@ -269,7 +375,7 @@ namespace MyApp.Controllers
             return genreNames;
         }
 
-        public List<string> GetPlatformNames(List<int> platformsIDS)
+        private List<string> GetPlatformNames(List<int> platformsIDS)
         {
             Console.WriteLine("Populating Platform Names");
             List<string> platformNames = new List<string>();
