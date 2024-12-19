@@ -3,7 +3,7 @@ using Newtonsoft.Json.Linq;
 
 namespace MyApp.Models.Igdb
 {
-
+    // Data from igdb api /multiplayer_mode
     public class IgdbMultiplayerMode
     {
         public int OnlineMax { get; set; }
@@ -35,14 +35,6 @@ namespace MyApp.Models.Igdb
                 "splitscreenonline",
                 "onlinemax",
             };
-            // foreach (var key in requiredKeys)
-            // {
-            //     if (!multiplayerModes.ContainsKey(key))
-            //     {
-            //         Console.WriteLine($"Error: Missing required key '{key}' in multiplayer modes JSON.");
-            //         return;
-            //     }
-            // }
 
             OnlineMax = (int?)multiplayerModes["onlinemax"] ?? 0;
             OnlineCoop = (bool?)multiplayerModes["onlinecoop"] ?? false;

@@ -49,10 +49,10 @@ namespace MyApp.Controllers
             var jsonString = await response.Content.ReadAsStringAsync();
             var jsonDeals = JArray.Parse(jsonString);
 
-            List<Deal> deals = new List<Deal>();
+            List<MainDeal> deals = new List<MainDeal>();
             foreach (var jsonDeal in jsonDeals)
             {
-                var deal = new Deal
+                var deal = new MainDeal
                 {
                     Title = (string)jsonDeal["title"],
                     GameID = (int)jsonDeal["gameID"],

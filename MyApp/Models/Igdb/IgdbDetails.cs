@@ -1,23 +1,9 @@
-//toda la data de IGDB
-//  ScreenShots foreing id
-//         Videos   youtube id https://www.youtube.com/embed/{videoID} using iframe
-//         Themes Themes + Genres foreing id array
-//         Summary string
-//         StoryLine string
-//         Rating Double
-
-
-// Create view Model for IndexGameVM
-//Game "CheapShark"
-//IgdbDetails
-
-
-// IndexGameVM.IgdbDetails.Videos   "Aqui saco los videos "
 using Newtonsoft.Json.Linq;
 
 namespace MyApp.Models.Igdb
 {
 
+    // Data from the igdb /games api
     public class IgdbGameDetails
     {
         public string GameName { get; set; } = "";
@@ -35,6 +21,7 @@ namespace MyApp.Models.Igdb
 
         public IgdbGameDetails() { }
 
+        //Jobject constructor
         public IgdbGameDetails(JObject gameDetails)
         {
             if (!gameDetails.ContainsKey("id") || !gameDetails.ContainsKey("name"))

@@ -1,3 +1,5 @@
+using Newtonsoft.Json.Linq;
+
 namespace MyApp.Models
 {
     public class Game
@@ -5,8 +7,10 @@ namespace MyApp.Models
         //Cheap shark
         public string Title { get; set; }
         public int SteamAppID { get; set; } = 0;
-        public List<Deal> Deals { get; set; }
-        public string Thumb { get; set; }
+        public string Thumb { get; set; } // url for image cheapShark
+
+        public List<MainDeal> Deals { get; set; }
+        public List<int> DealsIDs { get; set; }
         public Review Review { get; set; }
 
         //IGDB
@@ -23,6 +27,13 @@ namespace MyApp.Models
         */
 
         public Game() { }
+
+        public Game(JObject gameInfo)
+        {
+            Title = (string?)gameInfo["title"] ?? "";
+            SteamAppID = (int?)gameInfo["steamAppID"] ?? 0;
+            Thumb = (string)gameInfo["thumb"];
+        }
 
 
     }
