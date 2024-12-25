@@ -1,5 +1,40 @@
 $(document).ready(function () {
     ReviewColors();
+    console.log("Reviews styles updated");
+    console.log($('#about-btn'));  // Log the button element
+    var gameID = $('#about-btn').data('game-id');
+    console.log("My game id is: ");
+    console.log(gameID);
+
+    $('#partial-zone').load("Game/AboutPartial?gameID=" + gameID); // Load always first time the about partial view
+    console.log("Partial default rendered");
+
+    $('button').on('click', function () {
+
+        var buttonID = $(this).attr('id');
+        var gameID = $(this).data('game-id');
+
+        switch (buttonID) {
+            case "about-btn":
+                console.log("Rendering About Partial")
+                $('#partial-zone').load("Game/AboutPartial?gameID=" + gameID)
+                console.log("Succes About Partial Rendered")
+                break
+            case "media-btn":
+                console.log("Rendering Media Partial")
+                $('#partial-zone').load("Game/MediaPartial?gameID=" + gameID)
+                console.log("Succes Media Partial Rendered")
+                break
+            default:
+                console.log("using default acces partial");
+                var aboutGameID = $('#about-btn').data('game-id');
+                console.log("Default value for gameID is");
+                console.log(aboutGameID);
+                $('#partial-zone').load("Game/AboutPartial?gameID=" + aboutGameID)
+                console.log("Succes About Partial Rendered")
+                break
+        }
+    })
 });
 
 function ReviewColors() {
