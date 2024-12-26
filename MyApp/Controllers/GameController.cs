@@ -139,7 +139,7 @@ namespace MyApp.Controllers
             var igdbResponse = await _igdbAPI.GameDetails(slugTitle);
             if (!igdbResponse.IsSuccessStatusCode)
             {
-                Console.WriteLine($"No results found for igdb slug {slugTitle}");
+                Console.WriteLine($"No results found for igdb game {slugTitle}");
                 TempData["Found"] = "Game Details Not Found";
                 return View(indexGameVM);
             }
@@ -181,14 +181,26 @@ namespace MyApp.Controllers
             return View(indexGameVM);
         }
 
-        public IActionResult AboutPartial(int gameID)
+        public async Task<IActionResult> AboutPartial(int gameID)
         {
+            var response = await _igdbAPI.GameDetails(gameID);
+            if (!response.IsSuccessStatusCode)
+            {
+                Console.WriteLine($"No results found for igdb game: {gameID}");
+            }
+            var responseString = await response.Content.ReadAsStringAsync();
+            var jsonDetails = JObject.Parse(responseString);
+            IgdbAbout aboutGame = new IgdbAbout();
+            aboutGame.StoryLine = (string)jsonDetails["storyline"] ?? "";
+            aboutGame.Summary = (string)jsonDetails["summary"] ?? "";
 
-            return PartialView("_About", gameID);
+            return PartialView("_About", aboutGame);
         }
-        public IActionResult MediaPartial(int gameID)
+        public async Task<IActionResult> MediaPartial(int gameID)
         {
-            return PartialView("_Media", gameID);
+            IgdbMedia gameMedia = new IgdbMedia();
+            gameMedia.YoutubeLinks = await _igdbAPI.Videos(gameID);
+            return PartialView("_Media", gameMedia);
         }
 
         // HELPER FUNCTIONS ---------------------------------------------------------------------------------
