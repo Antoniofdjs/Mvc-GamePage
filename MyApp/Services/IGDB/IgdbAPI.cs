@@ -50,8 +50,12 @@ namespace MyApp.Services.IGDB
             return true;
         }
 
-        public async Task<HttpResponseMessage> GameDetails(string slugTitle)
+        public async Task<HttpResponseMessage> GameDetails<T>(T slugOrGameID)
         {
+            if (!(typeof(T) == typeof(string) || typeof(T) == typeof(int)))
+            {
+                throw new ArgumentException("Invalid type. Only string or int is allowed.");
+            }
 
             bool tokenSucces = await PrepareRequestAsync();
             if (!tokenSucces)
@@ -59,7 +63,15 @@ namespace MyApp.Services.IGDB
                 throw new InvalidOperationException("Failed to refresh token.");
             }
 
-            var body = $"fields *; where slug=\"{slugTitle}\";";
+            string body = "";
+            if (typeof(T) == typeof(string)) // using slugTitle
+            {
+                body = $"fields *; where slug=\"{slugOrGameID}\";";
+            }
+            if (typeof(T) == typeof(int)) // using gameID
+            {
+                body = $"fields *; where id={slugOrGameID};";
+            }
             var content = new StringContent(body, Encoding.UTF8, "text/plain");
 
             // Send the POST
@@ -161,9 +173,8 @@ namespace MyApp.Services.IGDB
         }
 
         /* Get all videos by gameID, returns the of youtube links max of 8, FIX THIS need to return json and httpResponse */
-        public async Task<List<string>> Videos(string gameID)
+        public async Task<List<string>> Videos(int gameID)
         {
-
 
             bool tokenSucces = await PrepareRequestAsync();
             if (!tokenSucces)
@@ -171,7 +182,7 @@ namespace MyApp.Services.IGDB
                 throw new InvalidOperationException("Failed to refresh token.");
             }
 
-            var body = $"fields video_id; where game={gameID}; limit 8;";
+            var body = $"fields video_id; where game={gameID};";
             var content = new StringContent(body, Encoding.UTF8, "text/plain");
             var response = await _httpClient.PostAsync("https://api.igdb.com/v4/game_videos", content);
             if (!response.IsSuccessStatusCode)
