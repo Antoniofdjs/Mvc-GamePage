@@ -9,8 +9,6 @@ namespace MyApp.Models.Igdb
         public string GameName { get; set; } = "";
         public string GameID { get; set; } = "";
         public string SlugTitle { get; set; } = "";
-        public string StoryLine { get; set; } = "";
-        public string Summary { get; set; } = "";
         public int RatingCount { get; set; } = 0;
         public string RatingLink { get; set; } = ""; // Complete igdb review link community #
         public List<int> ThemesIDs { get; set; }
@@ -33,8 +31,6 @@ namespace MyApp.Models.Igdb
             GameID = (string)gameDetails["id"] ?? "";
             GameName = (string)gameDetails["name"] ?? "";
             SlugTitle = (string)gameDetails["slug"] ?? "";
-            StoryLine = (string)gameDetails["storyline"] ?? "";
-            Summary = (string)gameDetails["summary"] ?? "";
             RatingCount = (int?)gameDetails["rating"] ?? 0;
             RatingLink = $"https://www.igdb.com/games/{SlugTitle}#community";
 
