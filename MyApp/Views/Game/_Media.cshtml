@@ -1,4 +1,50 @@
-@model int
-<div class="w-full h-full bg-red-500">
-    <p>this is a Media Partial gameid @Model</p>
+@model MyApp.Models.Igdb.IgdbMedia;
+<div id="videos-container" class="flex flex-col justify-start items-center w-full h-auto">
+    <h4 class="text-3xl text-white font-bold h-auto">Videos</h4>
+    <div class="flex flex-wrap justify-center items-center w-full h-auto md:h-full gap-2" style="line-height: 0;">
+        @foreach (var youTubeURL in Model.YoutubeLinks)
+        {
+            <div
+                class="animate-pulse w-full md:w-60 lg:w-64 xl:w-72 2xl:w-80 h-64 md:h-36 lg:h-40 xl:h-44 2xl:h-52 shadow-md shadow-black hover:shadow-none md:rounded-md hover:opacity-80 transition-transform duration-100 bg-gray-400">
+                <iframe src="@youTubeURL" frameborder="0" class="w-full h-full z-20"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    onload="this.style.opacity = '1'; this.parentElement.classList.remove('animate-pulse');"
+                    allowfullscreen></iframe>
+            </div>
+        }
+    </div>
 </div>
+@* <div id="screenshots"
+    class="flex justify-center items-center w-full h-auto md:h-1/6 overflow-x-auto my-scrollbar flex-shrink-0">
+    <div class="flex w-auto h-full min-w-0 gap-1 overflow-y-hidden px-2 my-scrollbar">
+        <div class="w-40 h-40 bg-red-800 flex-shrink-0 border border-purple-300 rounded-sm">
+            <img src="https://images.igdb.com/igdb/image/upload/t_screenshot_med/sc78fa.jpg"
+                class="w-full h-full object-cover shadow-md shadow-black hover:scale-110 transition-transform duration-100" />
+        </div>
+        <div class="w-40 h-40 bg-red-800 flex-shrink-0 border border-purple-300">
+            <img src="https://cdn.wikimg.net/en/strategywiki/images/7/7f/COD2_crossingtherhine.jpg"
+                class="w-full h-full object-cover shadow-md shadow-black hover:scale-110 transition-transform duration-100" />
+        </div>
+        <div class="w-40 h-40 bg-red-800 flex-shrink-0 border border-purple-300">
+            <img src="https://www.gamespot.com/a/uploads/original/gamespot/images/2005/121/reviews/656049-921995_20050502_001.jpg"
+                class="w-full h-full object-cover shadow-md shadow-black hover:scale-110 transition-transform duration-100" />
+        </div>
+        <div class="w-40 h-40 bg-red-800 flex-shrink-0 border border-purple-300">
+            <img src="https://www.gamespot.com/a/uploads/original/gamespot/images/2005/108/reviews/653811-921995_20050419_004.jpg"
+                class="w-full h-full object-cover shadow-md shadow-black hover:scale-110 transition-transform duration-100" />
+        </div>
+        <div class="w-40 h-40 bg-red-800 flex-shrink-0 border border-purple-300">
+            <img src="https://cdn.wikimg.net/en/strategywiki/images/7/7f/COD2_crossingtherhine.jpg"
+                class="w-full h-full object-cover shadow-md shadow-black hover:scale-110 transition-transform duration-100" />
+        </div>
+        <div class="w-40 h-40 bg-red-800 flex-shrink-0 border border-purple-300">
+            <img src="https://www.gamespot.com/a/uploads/original/gamespot/images/2005/121/reviews/656049-921995_20050502_001.jpg"
+                class="w-full h-full object-cover shadow-md shadow-black hover:scale-110 transition-transform duration-100" />
+        </div>
+        <div class="w-40 h-40 bg-red-800 flex-shrink-0 border border-purple-300">
+            <img src="https://www.gamespot.com/a/uploads/original/gamespot/images/2005/108/reviews/653811-921995_20050419_004.jpg"
+                class="w-full h-full object-cover shadow-md shadow-black hover:scale-110 transition-transform duration-100" />
+        </div>
+
+    </div>
+</div> *@
