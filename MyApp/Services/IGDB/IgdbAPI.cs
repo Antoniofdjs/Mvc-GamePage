@@ -201,5 +201,33 @@ namespace MyApp.Services.IGDB
             return youtubeURLs;
         }
 
+        public async Task<List<string>> ScreenShots(int gameID)
+        {
+            bool tokenSucces = await PrepareRequestAsync();
+            if (!tokenSucces)
+            {
+                throw new InvalidOperationException("Failed to refresh token.");
+            }
+
+            var body = $"fields image_id; where game={gameID}; limit 50;";
+            var content = new StringContent(body, Encoding.UTF8, "text/plain");
+            var response = await _httpClient.PostAsync("https://api.igdb.com/v4/screenshots", content);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new HttpRequestException($"Failed error:{response.StatusCode} call to api.igdb.com/v4/game_videos");
+
+            }
+
+            var jsonStringScreenShots = await response.Content.ReadAsStringAsync();
+            var jsonScreenShots = JArray.Parse(jsonStringScreenShots);
+            List<string> screenShotURLs = jsonScreenShots
+                .Where(u => !string.IsNullOrEmpty((string)u["image_id"]))
+                .Select(u => $"https://images.igdb.com/igdb/image/upload/t_screenshot_med/{u["image_id"]}.webp")
+                .OrderBy(u => u)
+                .ToList();
+            return screenShotURLs;
+
+        }
+
     }
 }
