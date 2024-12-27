@@ -76,3 +76,35 @@ body {
   box-shadow: 0 1px 3px 0 #d8b4fe;
   color: #d8b4fe;
 }
+/* Spinner class */
+.my-spinner {
+  width: 120px;
+  height: 120px;
+  border: 4px solid #f3f3f3; /* Light gray */
+  border-top: 4px solid #ac08e8; /* Blue */
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+      transform: rotate(0deg);
+  }
+  100% {
+      transform: rotate(360deg);
+  }
+}
+
+#spinner-container {
+  position: absolute;
+  top: 55%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(4, 4, 4, 0.673);
+  z-index: 19;
+  width: 50%;
+  height: 50%;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}

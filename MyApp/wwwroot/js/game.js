@@ -1,42 +1,7 @@
 $(document).ready(function () {
     ReviewColors();
     console.log("Reviews styles updated");
-    var gameID = $('#about-btn').data('game-id');
-    console.log("My game id is: ");
-    console.log(gameID);
-
-    $('#partial-zone').load("Game/AboutPartial?gameID=" + gameID); // Load always first time the about partial view
-    console.log("Partial default rendered");
-
-    $('button').on('click', function () {
-
-        $('#buttons-container button').removeClass('button-active').addClass('button-inactive') // remove active status from other buttons
-
-        $(this).addClass('button-active').removeClass('button-inactive') // add styles to active button
-        var buttonID = $(this).attr('id');
-        var gameID = $(this).data('game-id');
-
-        switch (buttonID) {
-            case "about-btn":
-                console.log("Rendering About Partial")
-                $('#partial-zone').load("Game/AboutPartial?gameID=" + gameID)
-                console.log("Succes About Partial Rendered")
-                break
-            case "media-btn":
-                console.log("Rendering Media Partial")
-                $('#partial-zone').load("Game/MediaPartial?gameID=" + gameID)
-                console.log("Succes Media Partial Rendered")
-                break
-            default:
-                console.log("using default acces partial");
-                var aboutGameID = $('#about-btn').data('game-id');
-                console.log("Default value for gameID is");
-                console.log(aboutGameID);
-                $('#partial-zone').load("Game/AboutPartial?gameID=" + aboutGameID)
-                console.log("Succes About Partial Rendered")
-                break
-        }
-    })
+    HandleButtonsPartialViews();
 });
 
 function ReviewColors() {
@@ -100,4 +65,46 @@ function ReviewColors() {
     } else {
         console.log("Igdb Rating element does not exist");
     }
+}
+
+function HandleButtonsPartialViews() {
+    var gameID = $('#about-btn').data('game-id');
+    console.log("My game id is: ");
+    console.log(gameID);
+
+    // Load always first time the "about" partial view
+    $('#partial-zone').load("Game/AboutPartial?gameID=" + gameID);
+    console.log("Partial default rendered");
+    $('#spinner-container').hide();
+    // Detect on clicks for navigation
+    $('#buttons-container button').on('click', function () {
+        $('#spinner-container').show();
+        // Change styles for active or inactive butttons
+        $('#buttons-container button').removeClass('button-active').addClass('button-inactive')
+        $(this).addClass('button-active').removeClass('button-inactive')
+
+        // Determine what button was clicked to fetch partial view
+        var buttonID = $(this).attr('id');
+        var gameID = $(this).data('game-id');
+        switch (buttonID) {
+            case "about-btn":
+                console.log("Rendering About Partial")
+                $('#partial-zone').load("Game/AboutPartial?gameID=" + gameID, function () { $('#spinner-container').hide(); })
+                console.log("Succes About Partial Rendered")
+                break
+            case "media-btn":
+                console.log("Rendering Media Partial")
+                $('#partial-zone').load("Game/MediaPartial?gameID=" + gameID, function () { $('#spinner-container').hide(); })
+                console.log("Succes Media Partial Rendered")
+                break
+            default:
+                console.log("using default acces partial");
+                var aboutGameID = $('#about-btn').data('game-id');
+                console.log("Default value for gameID is");
+                console.log(aboutGameID);
+                $('#partial-zone').load("Game/AboutPartial?gameID=" + aboutGameID, function () { $('#spinner-container').hide(); })
+                console.log("Succes About Partial Rendered")
+                break
+        }
+    })
 }
