@@ -1,7 +1,6 @@
 $(document).ready(function () {
     ReviewColors();
     console.log("Reviews styles updated");
-    console.log($('#about-btn'));  // Log the button element
     var gameID = $('#about-btn').data('game-id');
     console.log("My game id is: ");
     console.log(gameID);
@@ -11,6 +10,9 @@ $(document).ready(function () {
 
     $('button').on('click', function () {
 
+        $('#buttons-container button').removeClass('button-active').addClass('button-inactive') // remove active status from other buttons
+
+        $(this).addClass('button-active').removeClass('button-inactive') // add styles to active button
         var buttonID = $(this).attr('id');
         var gameID = $(this).data('game-id');
 

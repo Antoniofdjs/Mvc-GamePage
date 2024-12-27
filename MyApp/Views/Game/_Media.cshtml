@@ -1,5 +1,5 @@
 @model MyApp.Models.Igdb.IgdbMedia;
-<div id="videos-container" class="flex flex-col justify-start items-center w-full h-auto">
+<div id="videos-container" class="flex flex-col justify-start items-center w-full h-auto gap-4">
     <h4 class="text-3xl text-white font-bold h-auto">Videos</h4>
     <div class="flex flex-wrap justify-center items-center w-full h-auto md:h-full gap-2" style="line-height: 0;">
         @foreach (var youTubeURL in Model.YoutubeLinks)
@@ -14,37 +14,17 @@
         }
     </div>
 </div>
-@* <div id="screenshots"
-    class="flex justify-center items-center w-full h-auto md:h-1/6 overflow-x-auto my-scrollbar flex-shrink-0">
-    <div class="flex w-auto h-full min-w-0 gap-1 overflow-y-hidden px-2 my-scrollbar">
-        <div class="w-40 h-40 bg-red-800 flex-shrink-0 border border-purple-300 rounded-sm">
-            <img src="https://images.igdb.com/igdb/image/upload/t_screenshot_med/sc78fa.jpg"
-                class="w-full h-full object-cover shadow-md shadow-black hover:scale-110 transition-transform duration-100" />
-        </div>
-        <div class="w-40 h-40 bg-red-800 flex-shrink-0 border border-purple-300">
-            <img src="https://cdn.wikimg.net/en/strategywiki/images/7/7f/COD2_crossingtherhine.jpg"
-                class="w-full h-full object-cover shadow-md shadow-black hover:scale-110 transition-transform duration-100" />
-        </div>
-        <div class="w-40 h-40 bg-red-800 flex-shrink-0 border border-purple-300">
-            <img src="https://www.gamespot.com/a/uploads/original/gamespot/images/2005/121/reviews/656049-921995_20050502_001.jpg"
-                class="w-full h-full object-cover shadow-md shadow-black hover:scale-110 transition-transform duration-100" />
-        </div>
-        <div class="w-40 h-40 bg-red-800 flex-shrink-0 border border-purple-300">
-            <img src="https://www.gamespot.com/a/uploads/original/gamespot/images/2005/108/reviews/653811-921995_20050419_004.jpg"
-                class="w-full h-full object-cover shadow-md shadow-black hover:scale-110 transition-transform duration-100" />
-        </div>
-        <div class="w-40 h-40 bg-red-800 flex-shrink-0 border border-purple-300">
-            <img src="https://cdn.wikimg.net/en/strategywiki/images/7/7f/COD2_crossingtherhine.jpg"
-                class="w-full h-full object-cover shadow-md shadow-black hover:scale-110 transition-transform duration-100" />
-        </div>
-        <div class="w-40 h-40 bg-red-800 flex-shrink-0 border border-purple-300">
-            <img src="https://www.gamespot.com/a/uploads/original/gamespot/images/2005/121/reviews/656049-921995_20050502_001.jpg"
-                class="w-full h-full object-cover shadow-md shadow-black hover:scale-110 transition-transform duration-100" />
-        </div>
-        <div class="w-40 h-40 bg-red-800 flex-shrink-0 border border-purple-300">
-            <img src="https://www.gamespot.com/a/uploads/original/gamespot/images/2005/108/reviews/653811-921995_20050419_004.jpg"
-                class="w-full h-full object-cover shadow-md shadow-black hover:scale-110 transition-transform duration-100" />
-        </div>
-
+<div id="images-container" class="flex flex-col justify-start items-center w-full h-auto gap-4">
+    <h4 class="text-3xl text-white font-bold h-auto">Images</h4>
+    <div id="screenshots" class="flex flex-wrap justify-center items-center w-full h-auto gap-y-1 md:gap-y-0 md:gap-1">
+        @foreach (var screenURL in Model.CoverSizeScreensURLs)
+        {
+            <div
+                class="w-1/2 h-30 md:w-60 md:h-60 xl:w-40 xl:h-40 bg-gray-400 flex-shrink-0 border border-purple-300 rounded-sm animate-pulse">
+                <img src="@screenURL"
+                    class="w-full h-full object-cover shadow-md shadow-black hover:scale-110 hover:rounded-md transition-transform duration-100"
+                    onload="this.style.opacity = '1'; this.parentElement.classList.remove('animate-pulse');" />
+            </div>
+        }
     </div>
-</div> *@
+</div>

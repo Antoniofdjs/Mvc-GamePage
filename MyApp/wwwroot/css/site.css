@@ -49,3 +49,30 @@ body {
 .my-scrollbar::-webkit-scrollbar-thumb:hover {
   background-color: #020617; /* Darker thumb color on hover */
 }
+
+
+/* Buttons for about, media in game view index */
+.button-active {
+  border-top: none;
+  border-right: 1px solid transparent;
+  border-left: 1px solid transparent;
+  border-bottom: 1px solid #d8b4fe; /* Tailwind's border-purple-300 */
+  color: #d8b4fe; /* Tailwind's text-purple-300 */
+  padding-left: 0.5rem; /* Tailwind's px-2 (left padding) */
+  padding-right: 0.5rem; /* Tailwind's px-2 (right padding) */
+}
+
+/* Inactive button styles */
+.button-inactive {
+  border: 1px solid; /* Tailwind's border */
+  border-top: none; /* Tailwind's border-t-0 */
+  border-radius: 0.05rem; /* Tailwind's rounded-b-md */
+  padding-left: 0.5rem; /* Tailwind's px-2 (left padding) */
+  padding-right: 0.5rem; /* Tailwind's px-2 (right padding) */
+  background-color: #0f172a; /* Tailwind's bg-slate-900 */
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 1); /* Tailwind's shadow-md and shadow-black */
+}
+.button-inactive:hover {
+  box-shadow: 0 1px 3px 0 #d8b4fe;
+  color: #d8b4fe;
+}

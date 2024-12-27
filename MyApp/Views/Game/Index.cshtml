@@ -155,26 +155,23 @@
     @if (!string.IsNullOrEmpty(Model.IgdbDetails.GameID))
     {
         <div id="game-details"
-            class="flex flex-col justify-start items-center w-full md:w-3/4 h-auto md:h-full md:max-h-screen md:gap-4 bg-gradient-to-b from-slate-950 to-purple-800">
-            <div id="navigation-div" class="flex flex-col justify-start items-center w-full h-auto">
-                <div
-                    class="flex justify-center md:justify-start items-start w-full h-12 text-white text-center text-2xl text-center font-bold gap-8 md:pl-4 bg-white/20">
-                    <button id="about-btn" class="text-center border-b border-purple-300 text-purple-300 px-2"
-                        data-game-ID="@Model.IgdbDetails.GameID">
+            class="flex flex-col justify-start items-center w-full md:w-3/4 h-auto md:h-full md:max-h-screen gap-2 md:gap-4 bg-gradient-to-b from-slate-950 to-purple-800">
+            <div id="buttons-div" class="flex flex-col justify-start items-center w-full h-auto">
+                <div id="buttons-container"
+                    class="flex justify-center md:justify-start items-start w-full h-12 text-white text-center text-2xl text-center font-bold gap-8 md:pl-4 bg-white/20 overflow-hidden">
+                    <button id="about-btn" class="text-center button-active" data-game-ID="@Model.IgdbDetails.GameID">
                         About
                     </button>
-                    <button id="media-btn"
-                        class="text-center border-t-0 border rounded-b-md px-2 bg-slate-900 shadow-md shadow-black"
-                        data-game-ID="@Model.IgdbDetails.GameID">
+                    <button id="media-btn" class="text-center button-inactive" data-game-ID="@Model.IgdbDetails.GameID">
                         Media
                     </button>
-                    <button class="text-center border-t-0 border rounded-b-md px-2 bg-slate-900 shadow-md shadow-black">
+                    <button class="text-center button-inactive">
                         More
                     </button>
                 </div>
             </div>
             <div id="partial-zone"
-                class="flex flex-col justify-start items-center w-11/12 h-auto md:h-full md:overflow-y-auto my-scrollbar pb-32 md:pb-2">
+                class="flex flex-col justify-start items-center w-11/12 h-auto md:h-full md:overflow-y-auto my-scrollbar pb-32 md:pb-2 gap-8">
             </div>
         </div>
     }
