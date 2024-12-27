@@ -24,8 +24,8 @@ namespace MyApp.Models.Igdb
     //Igdb theme data from api
     public class IgdbMedia
     {
-        public List<string> CoverSizeURL { get; set; } = new List<string>(); //"https://images.igdb.com/igdb/image/upload/t_screenshot_med/{image_id}*.webp"
-        public List<string> OriginalSizeURL { get; set; } = new List<string>(); //"https://images.igdb.com/igdb/image/upload/t_original/*.webp"
+        public List<string> CoverSizeScreensURLs { get; set; } = new List<string>(); //"https://images.igdb.com/igdb/image/upload/t_screenshot_med/{image_id}*.webp"
+        public List<string> OriginalSizeScreenURLs { get; set; } = new List<string>(); //"https://images.igdb.com/igdb/image/upload/t_original/*.webp"
 
         public List<string> YoutubeLinks { get; set; } = new List<string>(); // Complete youtube Video Link EMBED "https://www.youtube.com/embed/{videoId}"
 
