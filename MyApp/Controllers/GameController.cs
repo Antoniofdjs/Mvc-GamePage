@@ -93,7 +93,7 @@ namespace MyApp.Controllers
 
             IndexGameVM indexGameVM = new IndexGameVM();
 
-            indexGameVM.Game = new Game2((JObject)jsonGame["info"]);
+            indexGameVM.Game = new Game((JObject)jsonGame["info"]);
             foreach (var jsonDeal in (JArray)jsonGame["deals"])
             {
                 Deal deal = new Deal((JObject)jsonDeal);
@@ -200,6 +200,7 @@ namespace MyApp.Controllers
         {
             IgdbMedia gameMedia = new IgdbMedia();
             gameMedia.YoutubeLinks = await _igdbAPI.Videos(gameID);
+            gameMedia.CoverSizeScreensURLs = await _igdbAPI.ScreenShots(gameID);
             return PartialView("_Media", gameMedia);
         }
 
