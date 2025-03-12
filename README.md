@@ -1,6 +1,6 @@
 # .NET MVC Game Deals Page
 
-WORK IN DEVELOPMENT - Page for a photographer's portfolio - WORK IN DEVELOPMENT
+WORK IN DEVELOPMENT - Page for game deals via the API of CheapShark and IGDB twitch API info.
 
 ## Overview
 
