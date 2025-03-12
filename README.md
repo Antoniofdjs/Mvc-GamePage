@@ -1,4 +1,4 @@
-# Go_htmx_page
+# .NET MVC Game Deals Page
 
 WORK IN DEVELOPMENT - Page for a photographer's portfolio - WORK IN DEVELOPMENT
 
