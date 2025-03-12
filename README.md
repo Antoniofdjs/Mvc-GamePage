@@ -1,6 +1,6 @@
-# Go_htmx_page
+# .NET MVC Game Deals Page
 
-WORK IN DEVELOPMENT - Page for a photographer's portfolio - WORK IN DEVELOPMENT
+WORK IN DEVELOPMENT - Page for game deals via the API of CheapShark and IGDB twitch API info.
 
 ## Overview
 
@@ -25,8 +25,8 @@ This app uses the CheapShark API first to present game deals and tehn get more i
 Work in progress, some images below:
 
 <div>
-  <img src="images/Details-1.png" alt="DetailsGame"/>
   <img src="images/Landing.png" alt="Landing"/>
-  <img src="images/Media.png" alt="Media"/>
   <img src="images/Search.png" alt="Search"/>
+  <img src="images/Details-1.png" alt="DetailsGame"/>
+  <img src="images/Media.png" alt="Media"/>
 </div>
