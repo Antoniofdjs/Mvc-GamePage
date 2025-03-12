@@ -25,8 +25,8 @@ This app uses the CheapShark API first to present game deals and tehn get more i
 Work in progress, some images below:
 
 <div>
-  <img src="images/Details-1.PNG" alt="Work View"/>
-  <img src="images/Landing.PNG" alt="Gallery"/>
-  <img src="images/Media.PNG" alt="Gallery"/>
-  <img src="images/Search.PNG" alt="Editor"/>
+  <img src="images/Details-1.png" alt="DetailsGame"/>
+  <img src="images/Landing.png" alt="Landing"/>
+  <img src="images/Media.png" alt="Media"/>
+  <img src="images/Search.png" alt="Search"/>
 </div>
