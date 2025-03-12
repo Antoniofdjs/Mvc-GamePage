@@ -5,13 +5,14 @@ WORK IN DEVELOPMENT - Page for a photographer's portfolio - WORK IN DEVELOPMENT
 ## Overview
 
 Game page for game price deals based on CheapShark API and twitch api for images and more info.
-This app uses the CheapShark API first to present game deals and tehn get more info via the twitch igdb games api.
+This app uses the CheapShark API first to present game deals and then get more info via the twitch igdb games api.
 
 ## Technologies Used
 
 - **.NET**: FUll Stack
 - **BlazorPages**: Frontend Designs
 - **TailwindCSS**: Styling and layout
+- **JavaScript**: DOM manipulation and reactive buttons
 
 ## Features
 
